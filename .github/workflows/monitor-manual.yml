@@ -1,6 +1,8 @@
-name: Monitor manually
+name: Monitor
 
 on:
+  schedule:
+    - cron: "*/30 * * * *"
   workflow_dispatch:
     inputs:
       send_email:
@@ -39,8 +41,8 @@ jobs:
             exit 1
           }
 
-      - name: Check Gmail secrets for one-email test
-        if: ${{ inputs.send_email }}
+      - name: Check Gmail secrets
+        if: ${{ github.event_name == 'schedule' || inputs.send_email }}
         shell: bash
         env:
           MAIL_USER: ${{ secrets.MAIL_USER }}
@@ -48,11 +50,11 @@ jobs:
         run: |
           set -euo pipefail
           test -n "$MAIL_USER" || {
-            echo "MAIL_USER is required when send_email=true" >&2
+            echo "MAIL_USER is required for Gmail monitoring" >&2
             exit 1
           }
           test -n "$MAIL_PASS" || {
-            echo "MAIL_PASS is required when send_email=true" >&2
+            echo "MAIL_PASS is required for Gmail monitoring" >&2
             exit 1
           }
 
@@ -94,15 +96,27 @@ jobs:
         run: python scripts/registry/fetch_registry.py
 
       - name: Generate and verify 55 urlwatch jobs
-        if: ${{ inputs.send_email == false }}
+        if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.send_email == false) }}
         run: python scripts/monitoring/generate_urls.py --expected-count 55
 
       - name: Run one monitoring pass with email disabled
-        if: ${{ inputs.send_email == false }}
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.send_email == false }}
         run: python scripts/monitoring/run_local.py --verbose --timeout 600
 
+      - name: Run scheduled monitoring with Gmail enabled
+        if: ${{ github.event_name == 'schedule' }}
+        env:
+          SCHEDULED_MONITORING_CONFIRMATION: RUN_55_WITH_GMAIL
+          URLWATCH_EMAIL_USER: ${{ secrets.MAIL_USER }}
+          URLWATCH_EMAIL_PASS: ${{ secrets.MAIL_PASS }}
+        run: >-
+          python scripts/monitoring/run_scheduled.py
+          --expected-count 55
+          --verbose
+          --timeout 600
+
       - name: Prepare exactly one deterministic Gmail test job
-        if: ${{ inputs.send_email }}
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.send_email }}
         shell: bash
         run: |
           set -euo pipefail
@@ -115,7 +129,7 @@ jobs:
             --output generated/email-test.yaml
 
       - name: Run exactly one confirmed Gmail test job
-        if: ${{ inputs.send_email }}
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.send_email }}
         env:
           EMAIL_TEST_CONFIRMATION: SEND_ONE_GMAIL_TEST
           URLWATCH_EMAIL_USER: ${{ secrets.MAIL_USER }}

@@ -10,6 +10,7 @@ from scripts.monitoring.generate_urls import build_urlwatch_jobs, require_expect
 from scripts.monitoring.prepare_email_test import DEFAULT_MARKER, build_email_test_job
 from scripts.monitoring.run_email_test import render_email_config, validate_single_test_job
 from scripts.monitoring.run_local import validate_mail_disabled
+from scripts.monitoring.run_scheduled import validate_scheduled_jobs
 from scripts.registry.fetch_registry import (
     google_sheet_csv_url,
     load_preset_config,
@@ -133,6 +134,44 @@ two,true,syosetu,syosetu-work,https://example.com/work,two,,
                 encoding="utf-8",
             )
             validate_single_test_job(path)
+
+    def test_scheduled_monitoring_accepts_55_unique_jobs(self) -> None:
+        jobs = [
+            {
+                "kind": "url",
+                "name": f"Job {index}",
+                "url": f"https://example.com/{index}",
+                "filter": ["strip"],
+            }
+            for index in range(55)
+        ]
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "scheduled.yaml"
+            path.write_text(
+                yaml.safe_dump_all(jobs, explicit_start=True, sort_keys=False),
+                encoding="utf-8",
+            )
+            validate_scheduled_jobs(path)
+
+    def test_scheduled_monitoring_rejects_email_smoke_test(self) -> None:
+        jobs = [
+            {
+                "kind": "url",
+                "name": f"Job {index}",
+                "url": f"https://example.com/{index}",
+                "filter": ["strip"],
+            }
+            for index in range(55)
+        ]
+        jobs[0] = build_email_test_job([jobs[0]], DEFAULT_MARKER)
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "scheduled.yaml"
+            path.write_text(
+                yaml.safe_dump_all(jobs, explicit_start=True, sort_keys=False),
+                encoding="utf-8",
+            )
+            with self.assertRaisesRegex(ValueError, "smoke-test"):
+                validate_scheduled_jobs(path)
 
 
 if __name__ == "__main__":

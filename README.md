@@ -32,7 +32,7 @@
 
 ## 現在の段階
 
-初期構造、旧版ファイルの安全な退避、既存URLの一括変換、9種類のサイト別プリセット、公開CSVの取得・検査、監視用YAML生成、メール無効のローカル監視まで実装済みです。通知なしCIと手動専用監視はGitHub Actionsでも成功しています。監視状態はPrivateの `sorikou/monitoring-state` に保存します。Gmail通知と30分ごとの定期実行はまだ有効にしていません。旧ワークフローは `migration/workflow.legacy.yml` に参考資料として残しています。
+初期構造、旧版ファイルの安全な退避、既存URLの一括変換、9種類のサイト別プリセット、公開CSVの取得・検査、監視用YAML生成、メール無効のローカル監視まで実装済みです。通知なしCIと手動監視はGitHub Actionsでも成功しています。監視状態はPrivateの `sorikou/monitoring-state` に保存します。Gmailの1通限定テストと再送防止も確認済みで、通常55件を30分ごとに監視するワークフローを使用します。旧ワークフローは `migration/workflow.legacy.yml` に参考資料として残しています。
 
 ## セットアップとテスト
 
@@ -119,16 +119,16 @@ python scripts/monitoring/run_local.py --urls generated/urls.sample.yaml --verbo
 
 WindowsではラッパーがPython UTF-8モードを有効にするため、日本語の抽出正規表現もCP932へ誤変換されません。
 
-## GitHub Actions（通知なし）
+## GitHub Actions
 
-現在は次の2ワークフローだけを有効にします。30分ごとの `schedule` とGmail通知はまだありません。
+現在は次の2ワークフローを使用します。
 
 - `Validate registry`: Push、Pull Request、手動実行で、固定依存の導入、単体テスト、公開スプレッドシート55件の取得、YAML生成を検査します。SQLiteとSecretsは使用しません。
-- `Monitor manually`: `workflow_dispatch` だけで起動します。Privateの `sorikou/monitoring-state` からDBを取得し、更新後DBを同じPrivateリポジトリへ保存します。`send_email` の初期値は `false` です。
+- `Monitor`: 30分ごとの `schedule` と `workflow_dispatch` で起動します。Privateの `sorikou/monitoring-state` からDBを取得し、更新後DBを同じPrivateリポジトリへ保存します。定期実行は通常55件をGmail通知ありで監視します。手動実行の `send_email` の初期値は `false` です。
 
 手動監視は同時実行を禁止し、20分でタイムアウトします。通常実行は55件でなければYAML生成を中止し、DBがない場合や保存できない場合も失敗します。
 
-`send_email=true` はGmail動作確認専用です。既存URLと同じDBキーを持つ1件だけを固定テスト値へ変更するため、初回は最大1通、同条件の再実行では変更なしとなり再送されません。確認後は `send_email=false` を実行し、通常55件の状態へ戻します。
+手動実行の `send_email=true` はGmail動作確認専用です。既存URLと同じDBキーを持つ1件だけを固定テスト値へ変更するため、初回は最大1通、同条件の再実行では変更なしとなり再送されません。確認後は `send_email=false` を実行し、通常55件の状態へ戻します。
 
 Private状態リポジトリだけを読み書きできるSSH Deploy Keyを用意し、その秘密鍵をPublicリポジトリの `STATE_REPO_SSH_KEY` に登録します。広い権限のPersonal Access Tokenは保存しません。`MAIL_USER` と `MAIL_PASS` は通知なしの手動監視が成功してから登録します。
 
@@ -140,7 +140,7 @@ Private状態リポジトリだけを読み書きできるSSH Deploy Keyを用�
 4. `Monitor manually without email` を1回成功させる
 5. `MAIL_USER` と `MAIL_PASS` をSecretsとして登録する
 6. 手動実行で通知が1通だけ届くことを確認する
-7. 旧版の定期実行を停止してから、新版の30分ごとの実行を有効にする
+7. 旧版の定期実行を停止してから、新版の30分ごとの実行を有効にする（完了後、最初の2～3回を確認する）
 
 SQLiteには取得済みページの内容が含まれる可能性があります。このPublicリポジトリでは `state/db.sqlite` をGit管理外とし、公開履歴に含めません。GitHub Actionsの監視状態はPrivateの `sorikou/monitoring-state` だけに保存します。
 

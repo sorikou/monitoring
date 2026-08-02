@@ -80,10 +80,10 @@ id | enabled | site | preset | url | name | memo | updated_at
 
 ## GoogleスプレッドシートからYAMLを作る
 
-スプレッドシートを閲覧可能な公開設定にし、シートURLまたはCSV公開URLを `REGISTRY_ENDPOINT` に指定します。通常の `https://docs.google.com/spreadsheets/d/.../edit#gid=...` 形式はCSVエクスポートURLへ自動変換します。取得失敗時に旧データへフォールバックせず、必ずエラー終了します。
+55件を登録済みの正本は [Monitoring Registry](https://docs.google.com/spreadsheets/d/1vAWAh3O06_n74x5J-FubE8tIHVKeZeRlGF5p49yCYUM/edit?usp=sharing) です。閲覧可能な公開設定になっており、このURLをそのまま `REGISTRY_ENDPOINT` に指定できます。通常の `https://docs.google.com/spreadsheets/d/.../edit#gid=...` 形式はCSVエクスポートURLへ自動変換します。`gid` がない場合は先頭の表示タブを取得します。取得失敗時に旧データへフォールバックせず、必ずエラー終了します。
 
 ```powershell
-$env:REGISTRY_ENDPOINT = "https://docs.google.com/spreadsheets/d/スプレッドシートID/edit#gid=0"
+$env:REGISTRY_ENDPOINT = "https://docs.google.com/spreadsheets/d/1vAWAh3O06_n74x5J-FubE8tIHVKeZeRlGF5p49yCYUM/edit?usp=sharing"
 python scripts/registry/fetch_registry.py
 python scripts/monitoring/generate_urls.py
 ```

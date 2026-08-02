@@ -81,6 +81,15 @@ two,true,syosetu,syosetu-work,https://example.com/work,two,,
             "https://docs.google.com/spreadsheets/d/example-id/export?format=csv&gid=123",
         )
 
+    def test_google_sheet_url_without_gid_uses_first_visible_sheet(self) -> None:
+        converted = google_sheet_csv_url(
+            "https://docs.google.com/spreadsheets/d/example-id/edit?usp=sharing"
+        )
+        self.assertEqual(
+            converted,
+            "https://docs.google.com/spreadsheets/d/example-id/gviz/tq?tqx=out:csv",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

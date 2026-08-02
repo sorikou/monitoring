@@ -66,10 +66,19 @@ def google_sheet_csv_url(endpoint: str) -> str:
     spreadsheet_id = match.group(1)
     query = parse_qs(parsed.query)
     fragment = parse_qs(parsed.fragment)
-    gid = (query.get("gid") or fragment.get("gid") or ["0"])[0]
+    gids = query.get("gid") or fragment.get("gid")
+    if gids:
+        return (
+            f"https://docs.google.com/spreadsheets/d/{spreadsheet_id}/export"
+            f"?format=csv&gid={gids[0]}"
+        )
+
+    # Imported workbooks do not necessarily give their first tab gid=0.
+    # The visualization endpoint selects the first visible tab without
+    # requiring callers to know its internal sheet ID.
     return (
-        f"https://docs.google.com/spreadsheets/d/{spreadsheet_id}/export"
-        f"?format=csv&gid={gid}"
+        f"https://docs.google.com/spreadsheets/d/{spreadsheet_id}/gviz/tq"
+        "?tqx=out:csv"
     )
 
 

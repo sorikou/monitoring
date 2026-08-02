@@ -37,10 +37,14 @@ class ImportLegacyTests(unittest.TestCase):
 kind: url
 name: "one"
 url: "https://example.com/work"
+filter:
+  - html2text
 ---
 kind: url
 name: "two"
 url: "https://example.com/work"
+filter:
+  - html2text
 """
 
         with self.assertRaisesRegex(ValueError, "Duplicate URL"):

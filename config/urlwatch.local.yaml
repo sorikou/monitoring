@@ -1,0 +1,6 @@
+report:
+  stdout:
+    enabled: true
+    color: true
+  email:
+    enabled: false

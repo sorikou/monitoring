@@ -24,12 +24,49 @@ DEFAULT_CSV_OUTPUT = PROJECT_ROOT / "migration" / "registry-seed.csv"
 DEFAULT_URLS_OUTPUT = PROJECT_ROOT / "generated" / "urls.yaml"
 TITLE_PLACEHOLDER = "{{TITLE_PLACEHOLDER}}"
 DOCUMENT_SEPARATOR = re.compile(r"(?m)^---\s*$")
+FILTER_PRESETS = {
+    ("- html2text",): "anime-news",
+    (
+        "- html2text",
+        "- re.findall: '(?s)最新話(.*?)この作品に対するご感想はこちらから'",
+    ): "comic-valkyrie-work",
+    (
+        "- html2text",
+        "- re.findall: '(?s)チャプター(.*?)作品インフォメーション'",
+    ): "gangan-online-work",
+    (
+        "- html2text",
+        "- re.findall: '(?s)無料配信中の漫画(.*?)ランキング'",
+    ): "gaugau-work",
+    (
+        "- html2text",
+        "- re.findall: '(?s)次回の新チャプター追加(.*?)予定です'",
+    ): "manga-up-work",
+    (
+        "- html2text",
+        "- re.findall: '(?s)最新話を読む(.*?)その他マンガ'",
+    ): "niconico-manga-work",
+    (
+        "- html2text",
+        "- re.findall: '(?s)作者：(.*?)この作品をブックマークに登録している人はこんな作品も読んでいます'",
+    ): "syosetu-work",
+    (
+        "- html2text",
+        "- grepi: '（改）'",
+        "- re.findall: '(?s)作者：(.*?)この作品をブックマークに登録している人はこんな作品も読んでいます'",
+    ): "syosetu-work-ignore-revised",
+    (
+        "- html2text",
+        "- re.findall: '(?s)必要ポイント(.*?)「全話無料」対象作品はコチラ!!!'",
+    ): "yanmaga-work",
+}
 
 
 @dataclass(frozen=True)
 class LegacyJob:
     name: str
     site: str
+    preset: str
     url: str
     body: str
 
@@ -57,6 +94,27 @@ def site_for_url(url: str) -> str:
     return hostname.removeprefix("www.")
 
 
+def active_filter_lines(body: str) -> tuple[str, ...]:
+    lines = body.splitlines()
+    try:
+        start = next(index for index, line in enumerate(lines) if line == "filter:")
+    except StopIteration as error:
+        raise ValueError("Legacy URL job has no filter block") from error
+    return tuple(
+        line.strip()
+        for line in lines[start + 1 :]
+        if line.strip() and not line.lstrip().startswith("#")
+    )
+
+
+def preset_for_body(body: str) -> str:
+    filter_lines = active_filter_lines(body)
+    try:
+        return FILTER_PRESETS[filter_lines]
+    except KeyError as error:
+        raise ValueError(f"No preset mapping for legacy filters: {filter_lines}") from error
+
+
 def parse_legacy_template(text: str) -> list[LegacyJob]:
     jobs: list[LegacyJob] = []
     seen_urls: set[str] = set()
@@ -80,6 +138,7 @@ def parse_legacy_template(text: str) -> list[LegacyJob]:
             LegacyJob(
                 name=name,
                 site=site_for_url(url),
+                preset=preset_for_body(body),
                 url=url,
                 body=body,
             )
@@ -94,17 +153,30 @@ def build_registry_csv(jobs: list[LegacyJob]) -> bytes:
     buffer = io.StringIO(newline="")
     writer = csv.DictWriter(
         buffer,
-        fieldnames=("enabled", "site", "url", "name"),
+        fieldnames=(
+            "id",
+            "enabled",
+            "site",
+            "preset",
+            "url",
+            "name",
+            "memo",
+            "updated_at",
+        ),
         lineterminator="\n",
     )
     writer.writeheader()
-    for job in jobs:
+    for index, job in enumerate(jobs, 1):
         writer.writerow(
             {
+                "id": f"monitor-{index:04d}",
                 "enabled": "true",
                 "site": job.site,
+                "preset": job.preset,
                 "url": job.url,
                 "name": job.name,
+                "memo": "",
+                "updated_at": "",
             }
         )
     return buffer.getvalue().encode("utf-8-sig")

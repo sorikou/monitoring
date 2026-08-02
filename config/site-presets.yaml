@@ -1,0 +1,4 @@
+# サイトごとの共通抽出ルールを定義します。
+# 旧版 migration/urls_template.legacy.yaml の調査後にプリセットを追加します。
+schema_version: 1
+presets: {}

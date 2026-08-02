@@ -1,0 +1,496 @@
+# 全体のテンプレート
+# ---
+# kind: url
+# name: "{{TITLE_PLACEHOLDER}}"
+# url:  "URL"# 同じURLがあるとERRORになる場合がある
+# filter:
+#   - html2text
+#   - grepi: '無視したい行に含まれる文字列'
+#   - re.findall: '(?s)START(.*?)END'
+# 小説家になろう用のテンプレート
+# ---
+# kind: url
+# name: "{{TITLE_PLACEHOLDER}}"
+# url:  "なろうのURLを入力してください(ただし、最新話の表示されるページ)"
+# filter:
+#   - html2text
+#   - grepi: '無視したい行に含まれる文字列'# まああってもなくてもいい
+#   - re.findall: '(?s)作者：(.*?)この作品をブックマークに登録している人はこんな作品も読んでいます'
+---
+kind: url
+name: "{{TITLE_PLACEHOLDER}}"
+url:  "https://ncode.syosetu.com/n8281jr/?p=2"
+filter:
+  - html2text
+  - grepi: '（改）'
+  - re.findall: '(?s)作者：(.*?)この作品をブックマークに登録している人はこんな作品も読んでいます'
+---
+kind: url
+name: "{{TITLE_PLACEHOLDER}}"
+url:  "https://ncode.syosetu.com/n8418ff/?p=2"
+filter:
+  - html2text
+  - re.findall: '(?s)作者：(.*?)この作品をブックマークに登録している人はこんな作品も読んでいます'
+---
+kind: url
+name: "{{TITLE_PLACEHOLDER}}"
+url:  "https://ncode.syosetu.com/n5851di/"
+filter:
+  - html2text
+  - re.findall: '(?s)作者：(.*?)この作品をブックマークに登録している人はこんな作品も読んでいます'
+---
+kind: url
+name: "{{TITLE_PLACEHOLDER}}"
+url:  "https://ncode.syosetu.com/n0611em/?p=3"
+filter:
+  - html2text
+  - re.findall: '(?s)作者：(.*?)この作品をブックマークに登録している人はこんな作品も読んでいます'
+---
+kind: url
+name: "{{TITLE_PLACEHOLDER}}"
+url:  "https://ncode.syosetu.com/n7429fo/"
+filter:
+  - html2text
+  - re.findall: '(?s)作者：(.*?)この作品をブックマークに登録している人はこんな作品も読んでいます'
+---
+kind: url
+name: "{{TITLE_PLACEHOLDER}}"
+url:  "https://ncode.syosetu.com/n1996ca/"
+filter:
+  - html2text
+  - re.findall: '(?s)作者：(.*?)この作品をブックマークに登録している人はこんな作品も読んでいます'
+---
+kind: url
+name: "{{TITLE_PLACEHOLDER}}"
+url:  "https://ncode.syosetu.com/n2589ii/"
+filter:
+  - html2text
+  - re.findall: '(?s)作者：(.*?)この作品をブックマークに登録している人はこんな作品も読んでいます'
+---
+kind: url
+name: "{{TITLE_PLACEHOLDER}}"
+url:  "https://ncode.syosetu.com/n9525fd/?p=4"
+filter:
+  - html2text
+  - re.findall: '(?s)作者：(.*?)この作品をブックマークに登録している人はこんな作品も読んでいます'
+---
+kind: url
+name: "{{TITLE_PLACEHOLDER}}"
+url:  "https://ncode.syosetu.com/n4136hf/"
+filter:
+  - html2text
+  - re.findall: '(?s)作者：(.*?)この作品をブックマークに登録している人はこんな作品も読んでいます'
+---
+kind: url
+name: "{{TITLE_PLACEHOLDER}}"
+url:  "https://ncode.syosetu.com/n8492hk/"
+filter:
+  - html2text
+  - re.findall: '(?s)作者：(.*?)この作品をブックマークに登録している人はこんな作品も読んでいます'
+---
+kind: url
+name: "{{TITLE_PLACEHOLDER}}"
+url:  "https://ncode.syosetu.com/n7564ha/"
+filter:
+  - html2text
+  - re.findall: '(?s)作者：(.*?)この作品をブックマークに登録している人はこんな作品も読んでいます'
+---
+kind: url
+name: "{{TITLE_PLACEHOLDER}}"
+url:  "https://ncode.syosetu.com/n9736dt/?p=3"
+filter:
+  - html2text
+  - re.findall: '(?s)作者：(.*?)この作品をブックマークに登録している人はこんな作品も読んでいます'
+---
+kind: url
+name: "{{TITLE_PLACEHOLDER}}"
+url:  "https://ncode.syosetu.com/n9493gl/"
+filter:
+  - html2text
+  - re.findall: '(?s)作者：(.*?)この作品をブックマークに登録している人はこんな作品も読んでいます'
+---
+kind: url
+name: "{{TITLE_PLACEHOLDER}}"
+url:  "https://ncode.syosetu.com/n9271fe/"
+filter:
+  - html2text
+  - re.findall: '(?s)作者：(.*?)この作品をブックマークに登録している人はこんな作品も読んでいます'
+---
+kind: url
+name: "{{TITLE_PLACEHOLDER}}"
+url:  "https://ncode.syosetu.com/n9074ff/"
+filter:
+  - html2text
+  - re.findall: '(?s)作者：(.*?)この作品をブックマークに登録している人はこんな作品も読んでいます'
+---
+kind: url
+name: "{{TITLE_PLACEHOLDER}}"
+url:  "https://ncode.syosetu.com/n7209fi/"
+filter:
+  - html2text
+  - re.findall: '(?s)作者：(.*?)この作品をブックマークに登録している人はこんな作品も読んでいます'
+---
+kind: url
+name: "{{TITLE_PLACEHOLDER}}"
+url:  "https://ncode.syosetu.com/n1004ek/"
+filter:
+  - html2text
+  - re.findall: '(?s)作者：(.*?)この作品をブックマークに登録している人はこんな作品も読んでいます'
+---
+kind: url
+name: "{{TITLE_PLACEHOLDER}}"
+url:  "https://ncode.syosetu.com/n2687fa/"
+filter:
+  - html2text
+  - re.findall: '(?s)作者：(.*?)この作品をブックマークに登録している人はこんな作品も読んでいます'
+---
+kind: url
+name: "{{TITLE_PLACEHOLDER}}"
+url:  "https://ncode.syosetu.com/n8401do/"
+filter:
+  - html2text
+  - re.findall: '(?s)作者：(.*?)この作品をブックマークに登録している人はこんな作品も読んでいます'
+---
+kind: url
+name: "{{TITLE_PLACEHOLDER}}"
+url:  "https://ncode.syosetu.com/n1762eo/"
+filter:
+  - html2text
+  - re.findall: '(?s)作者：(.*?)この作品をブックマークに登録している人はこんな作品も読んでいます'
+---
+kind: url
+name: "{{TITLE_PLACEHOLDER}}"
+url:  "https://ncode.syosetu.com/n4532en/?p=6"
+filter:
+  - html2text
+  - re.findall: '(?s)作者：(.*?)この作品をブックマークに登録している人はこんな作品も読んでいます'
+---
+kind: url
+name: "{{TITLE_PLACEHOLDER}}"
+url:  "https://ncode.syosetu.com/n1214hi/?p=2"
+filter:
+  - html2text
+  - re.findall: '(?s)作者：(.*?)この作品をブックマークに登録している人はこんな作品も読んでいます'
+---
+kind: url
+name: "{{TITLE_PLACEHOLDER}}"
+url:  "https://ncode.syosetu.com/n5871dy/?p=2"
+filter:
+  - html2text
+  - re.findall: '(?s)作者：(.*?)この作品をブックマークに登録している人はこんな作品も読んでいます'
+---
+kind: url
+name: "{{TITLE_PLACEHOLDER}}"
+url:  "https://ncode.syosetu.com/n7942ff/?p=2"
+filter:
+  - html2text
+  - re.findall: '(?s)作者：(.*?)この作品をブックマークに登録している人はこんな作品も読んでいます'
+---
+kind: url
+name: "{{TITLE_PLACEHOLDER}}"
+url:  "https://ncode.syosetu.com/n9846ee/?p=5"
+filter:
+  - html2text
+  - re.findall: '(?s)作者：(.*?)この作品をブックマークに登録している人はこんな作品も読んでいます'
+---
+kind: url
+name: "{{TITLE_PLACEHOLDER}}"
+url:  "https://ncode.syosetu.com/n2494fq/?p=4"
+filter:
+  - html2text
+  - re.findall: '(?s)作者：(.*?)この作品をブックマークに登録している人はこんな作品も読んでいます'
+---
+kind: url
+name: "{{TITLE_PLACEHOLDER}}"
+url:  "https://ncode.syosetu.com/n8030gu/?p=2"
+filter:
+  - html2text
+  - re.findall: '(?s)作者：(.*?)この作品をブックマークに登録している人はこんな作品も読んでいます'
+---
+kind: url
+name: "{{TITLE_PLACEHOLDER}}"
+url:  "https://ncode.syosetu.com/n1592db/?p=5"
+filter:
+  - html2text
+  - re.findall: '(?s)作者：(.*?)この作品をブックマークに登録している人はこんな作品も読んでいます'
+---
+kind: url
+name: "{{TITLE_PLACEHOLDER}}"
+url:  "https://ncode.syosetu.com/n1393ew/"
+filter:
+  - html2text
+  - re.findall: '(?s)作者：(.*?)この作品をブックマークに登録している人はこんな作品も読んでいます'
+---
+kind: url
+name: "{{TITLE_PLACEHOLDER}}"
+url:  "https://ncode.syosetu.com/n1290ff/?p=3"
+filter:
+  - html2text
+  - re.findall: '(?s)作者：(.*?)この作品をブックマークに登録している人はこんな作品も読んでいます'
+# カクヨム用のテンプレート
+# ---
+# kind: url
+# name: "{{TITLE_PLACEHOLDER}}"
+# url:  "カクヨムのURL"
+# filter:
+#   - html2text
+#   - re.findall: '(?s)詳細(.*?)ギフトを贈る'# 最終更新時間のみの表示なので注意。
+# ---
+# kind: url
+# name: "{{TITLE_PLACEHOLDER}}"
+# url:  "https://kakuyomu.jp/works/16817330656558232952"
+# filter:
+#   - html2text
+#   - re.findall: '(?s)詳細(.*?)ギフトを贈る'
+# ---
+# kind: url
+# name: "{{TITLE_PLACEHOLDER}}"
+# url:  "https://kakuyomu.jp/works/1177354054885971051"
+# filter:
+#   - html2text
+#   - re.findall: '(?s)詳細(.*?)ギフトを贈る'
+# ヴァルキリーのテンプレート
+# ---
+# kind: url
+# name: "{{TITLE_PLACEHOLDER}}"
+# url:  "ヴァルキリーのURL"
+# filter:
+#   - html2text
+#   - re.findall: '(?s)最新話(.*?)この作品に対するご感想はこちらから'
+---
+kind: url
+name: "{{TITLE_PLACEHOLDER}}"
+url:  "https://www.comic-valkyrie.com/rengokujima/"
+filter:
+  - html2text
+  - re.findall: '(?s)最新話(.*?)この作品に対するご感想はこちらから'
+---
+kind: url
+name: "{{TITLE_PLACEHOLDER}}"
+url:  "https://www.comic-valkyrie.com/teisou/"
+filter:
+  - html2text
+  - re.findall: '(?s)最新話(.*?)この作品に対するご感想はこちらから'
+---
+kind: url
+name: "{{TITLE_PLACEHOLDER}}"
+url:  "https://www.comic-valkyrie.com/yusyasama/"
+filter:
+  - html2text
+  - re.findall: '(?s)最新話(.*?)この作品に対するご感想はこちらから'
+---
+kind: url
+name: "{{TITLE_PLACEHOLDER}}"
+url:  "https://www.comic-valkyrie.com/goy/"
+filter:
+  - html2text
+  - re.findall: '(?s)最新話(.*?)この作品に対するご感想はこちらから'
+# がうがうモンスター用のテンプレート
+# ---
+# kind: url
+# name: "{{TITLE_PLACEHOLDER}}"
+# url:  "がうがうモンスターのURL"
+# filter:
+#   - html2text
+#   - re.findall: '(?s)無料配信中の漫画(.*?)ランキング'
+---
+kind: url
+name: "{{TITLE_PLACEHOLDER}}"
+url:  "https://gaugau.futabanet.jp/list/work/5e76364f776561229d020000"
+filter:
+  - html2text
+  - re.findall: '(?s)無料配信中の漫画(.*?)ランキング'
+---
+kind: url
+name: "{{TITLE_PLACEHOLDER}}"
+url:  "https://gaugau.futabanet.jp/list/work/5dd4fcf177656139da050000"
+filter:
+  - html2text
+  - re.findall: '(?s)無料配信中の漫画(.*?)ランキング'
+---
+kind: url
+name: "{{TITLE_PLACEHOLDER}}"
+url:  "https://gaugau.futabanet.jp/list/work/6020e085776561374d020000"
+filter:
+  - html2text
+  - re.findall: '(?s)無料配信中の漫画(.*?)ランキング'
+# ガンガンOnlineのテンプレート
+# ---
+# kind: url
+# name: "{{TITLE_PLACEHOLDER}}"
+# url:  "ガンガンOnlineURL"
+# filter:
+#   - html2text
+#   - re.findall: '(?s)チャプター(.*?)作品インフォメーション'
+---
+kind: url
+name: "{{TITLE_PLACEHOLDER}}"
+url:  "https://www.ganganonline.com/title/72"
+filter:
+  - html2text
+  - re.findall: '(?s)チャプター(.*?)作品インフォメーション'
+---
+kind: url
+name: "{{TITLE_PLACEHOLDER}}"
+url:  "https://www.ganganonline.com/title/52"
+filter:
+  - html2text
+  - re.findall: '(?s)チャプター(.*?)作品インフォメーション'
+---
+kind: url
+name: "{{TITLE_PLACEHOLDER}}"
+url:  "https://www.ganganonline.com/title/36"
+filter:
+  - html2text
+  - re.findall: '(?s)チャプター(.*?)作品インフォメーション'
+---
+kind: url
+name: "{{TITLE_PLACEHOLDER}}"
+url:  "https://www.ganganonline.com/title/1024"
+filter:
+  - html2text
+  - re.findall: '(?s)チャプター(.*?)作品インフォメーション'
+# ヤンマガWebのテンプレート
+# ---
+# kind: url
+# name: "{{TITLE_PLACEHOLDER}}"
+# url:  "ヤンマガWebのURL"
+# filter:
+#   - html2text
+#   - re.findall: '(?s)必要ポイント(.*?)「全話無料」対象作品はコチラ!!!'
+---
+kind: url
+name: "{{TITLE_PLACEHOLDER}}"
+url:  "https://yanmaga.jp/comics/%E3%83%AC%E3%83%99%E3%83%AB%EF%BC%91%E3%81%A0%E3%81%91%E3%81%A9%E3%83%A6%E3%83%8B%E3%83%BC%E3%82%AF%E3%82%B9%E3%82%AD%E3%83%AB%E3%81%A7%E6%9C%80%E5%BC%B7%E3%81%A7%E3%81%99"
+filter:
+  - html2text
+  - re.findall: '(?s)必要ポイント(.*?)「全話無料」対象作品はコチラ!!!'
+---
+kind: url
+name: "{{TITLE_PLACEHOLDER}}"
+url:  "https://yanmaga.jp/comics/%E8%82%A1%E9%96%93%E7%84%A1%E5%8F%8C%E5%AB%8C%E3%82%8F%E3%82%8C%E5%8B%87%E8%80%85%E3%81%AF%E9%AD%94%E6%97%8F%E3%81%AB%E6%84%9B%E3%81%95%E3%82%8C%E3%82%8B"
+filter:
+  - html2text
+  - re.findall: '(?s)必要ポイント(.*?)「全話無料」対象作品はコチラ!!!'
+---
+kind: url
+name: "{{TITLE_PLACEHOLDER}}"
+url:  "https://yanmaga.jp/comics/%E7%84%A1%E4%BF%AE%E6%AD%A3%E7%89%88%E6%99%82%E9%96%93%E5%81%9C%E6%AD%A2%E5%8B%87%E8%80%85%E4%BD%99%E5%91%BD%EF%BC%93%E6%97%A5%E3%81%AE%E8%A8%AD%E5%AE%9A%E3%81%98%E3%82%83%E4%B8%96%E7%95%8C%E3%82%92%E6%95%91%E3%81%86%E3%81%AB%E3%81%AF%E7%9F%AD%E3%81%99%E3%81%8E%E3%82%8B"
+filter:
+  - html2text
+  - re.findall: '(?s)必要ポイント(.*?)「全話無料」対象作品はコチラ!!!'
+
+# にこにこ漫画用のテンプレート
+# ---
+# kind: url
+# name: "{{TITLE_PLACEHOLDER}}"
+# url:  "URL"
+# filter:
+#   - html2text
+#   - re.findall: '(?s)最新話を読む(.*?)その他マンガ'
+---
+kind: url
+name: "{{TITLE_PLACEHOLDER}}"
+url:  "https://manga.nicovideo.jp/comic/58894"
+filter:
+  - html2text
+  - re.findall: '(?s)最新話を読む(.*?)その他マンガ'
+# マンガup用のテンプレート
+# ---
+# kind: url
+# name: "{{TITLE_PLACEHOLDER}}"
+# url:  "URL"
+# filter:
+#   - html2text
+#   - re.findall: '(?s)エピソード一覧(.*?)応援コメント'
+---
+kind: url
+name: "{{TITLE_PLACEHOLDER}}"
+url:  "https://www.manga-up.com/titles/222"
+filter:
+  - html2text
+  - re.findall: '(?s)次回の新チャプター追加(.*?)予定です'
+# firecross用のテンプレート
+# ---
+# kind: url
+# name: "{{TITLE_PLACEHOLDER}}"
+# url:  "firecrossのURL"
+# filter:
+#   - html2text
+#   - re.findall: '(?s)1話ずつ読む(.*?)単行本で読む'
+# ---
+# kind: url
+# name: "{{TITLE_PLACEHOLDER}}"
+# url:  "https://firecross.jp/ebook/series/286"
+# filter:
+#   - html2text
+#   - re.findall: '(?s)1話ずつ読む(.*?)単行本で読む'
+# アニメ通知用のテンプレート
+# ---
+# kind: url
+# name: "{{TITLE_PLACEHOLDER}}"
+# url:  "公式アニメサイトのnewsのURL"
+# filter:
+#   - html2text
+---
+kind: url
+name: "{{TITLE_PLACEHOLDER}}"
+url:  "https://shadow-garden.jp/news/"
+filter:
+  - html2text
+---
+kind: url
+name: "NEWS -アニメ『【推しの子】』公式サイト-"
+url:  "https://ichigoproduction.com/news/"
+filter:
+  - html2text
+---
+kind: url
+name: "{{TITLE_PLACEHOLDER}}"
+url:  "https://kamikatsu-anime.jp/newsinfo/"
+filter:
+  - html2text
+---
+kind: url
+name: "NEWS｜TVアニメ「無能なナナ」公式サイト"
+url:  "https://munounanana.com/news/"
+filter:
+  - html2text
+---
+kind: url
+name: "NEWS｜TVアニメ「ゾン100～ゾンビになるまでにしたい100のこと～」公式サイト"
+url:  "https://zom100.com/news.html"
+filter:
+  - html2text
+---
+kind: url
+name: "{{TITLE_PLACEHOLDER}}"
+url:  "https://chainsawman.dog/news/"
+filter:
+  - html2text
+---
+kind: url
+name: "NEWS | TVアニメ「俺だけレベルアップな件」公式サイト"
+url:  "https://sololeveling-anime.net/news/"
+filter:
+  - html2text
+---
+kind: url
+name: "NEWS｜TVアニメ「デッドマウント・デスプレイ」公式サイト"
+url:  "https://dmdp-anime.jp/news/"
+filter:
+  - html2text
+---
+kind: url
+name: "{{TITLE_PLACEHOLDER}}"
+url:  "https://rokka-anime.jp/index.php/category/news/"
+filter:
+  - html2text
+# コピー用
+# ---
+# kind: url
+# name: "{{TITLE_PLACEHOLDER}}"
+# url:  "URL"
+# filter:
+#   - html2text
+#   - re.findall: '(?s)START(.*?)END'

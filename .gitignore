@@ -1,0 +1,17 @@
+.env
+.env.*
+!.env.example
+
+credentials.json
+service-account*.json
+*.log
+
+generated/*
+!generated/.gitkeep
+
+state/db.sqlite
+state/db.sqlite-*
+
+backups/
+__pycache__/
+.venv/

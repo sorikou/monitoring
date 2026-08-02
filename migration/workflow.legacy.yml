@@ -1,0 +1,55 @@
+name: urlwatch
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Install Python deps
+        run: |
+          pip install pyyaml requests beautifulsoup4
+
+      - name: Generate urlwatch.yaml from template
+        run: python scripts/update_yaml.py
+
+      - name: Install dependencies
+        run: python -m pip install --upgrade urlwatch
+
+      - name: Run urlwatch (using repo DB)
+        env:
+          URLWATCH_EMAIL_USER: ${{ secrets.MAIL_USER }}
+          URLWATCH_EMAIL_PASS: ${{ secrets.MAIL_PASS }}
+        run: |
+          mkdir -p ~/.config/urlwatch db
+          cp urlwatch.yaml ~/.config/urlwatch/urlwatch.yaml
+          sed -i \
+            -e 's|\${URLWATCH_EMAIL_USER}|'"$URLWATCH_EMAIL_USER"'|g' \
+            -e 's|\${URLWATCH_EMAIL_PASS}|'"$URLWATCH_EMAIL_PASS"'|g' \
+            ~/.config/urlwatch/urlwatch.yaml
+          cp urls.yaml ~/.config/urlwatch/urls.yaml
+          # ← ここで --database=db/db.sqlite を指定
+          urlwatch \
+            --config ~/.config/urlwatch/urlwatch.yaml \
+            --urls   ~/.config/urlwatch/urls.yaml \
+            --cache  db/db.sqlite
+
+      - name: Commit and push URLWatch DB
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add db/db.sqlite
+          git commit -m "Update urlwatch DB" || echo "Nothing to commit"
+          git push origin main

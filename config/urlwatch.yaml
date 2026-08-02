@@ -1,0 +1,30 @@
+reporters:
+  stdout:
+    enabled: true
+
+  email:
+    enabled: true
+    keyring: false
+    from:    "${URLWATCH_EMAIL_USER}"
+    to:      "${URLWATCH_EMAIL_USER}"
+    smtp:
+      host:     smtp.gmail.com
+      port:     587
+      starttls: true
+      user:     "${URLWATCH_EMAIL_USER}"
+      password: "${URLWATCH_EMAIL_PASS}"
+
+report:
+  email:
+    enabled: true
+    method: smtp
+    from:    "${URLWATCH_EMAIL_USER}"
+    to:      "${URLWATCH_EMAIL_USER}"
+
+    smtp:
+      host:     smtp.gmail.com
+      auth:     true
+      port:     587
+      starttls: true
+      user:     "${URLWATCH_EMAIL_USER}"
+      insecure_password: "${URLWATCH_EMAIL_PASS}"

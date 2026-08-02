@@ -124,9 +124,11 @@ WindowsではラッパーがPython UTF-8モードを有効にするため、日�
 現在は次の2ワークフローだけを有効にします。30分ごとの `schedule` とGmail通知はまだありません。
 
 - `Validate registry`: Push、Pull Request、手動実行で、固定依存の導入、単体テスト、公開スプレッドシート55件の取得、YAML生成を検査します。SQLiteとSecretsは使用しません。
-- `Monitor manually without email`: `workflow_dispatch` だけで起動します。Privateの `sorikou/monitoring-state` からDBを取得し、メール無効で1回監視して、更新後DBを同じPrivateリポジトリへ保存します。
+- `Monitor manually`: `workflow_dispatch` だけで起動します。Privateの `sorikou/monitoring-state` からDBを取得し、更新後DBを同じPrivateリポジトリへ保存します。`send_email` の初期値は `false` です。
 
-手動監視は同時実行を禁止し、20分でタイムアウトします。55件でなければYAML生成を中止し、DBがない場合や保存できない場合も失敗します。
+手動監視は同時実行を禁止し、20分でタイムアウトします。通常実行は55件でなければYAML生成を中止し、DBがない場合や保存できない場合も失敗します。
+
+`send_email=true` はGmail動作確認専用です。既存URLと同じDBキーを持つ1件だけを固定テスト値へ変更するため、初回は最大1通、同条件の再実行では変更なしとなり再送されません。確認後は `send_email=false` を実行し、通常55件の状態へ戻します。
 
 Private状態リポジトリだけを読み書きできるSSH Deploy Keyを用意し、その秘密鍵をPublicリポジトリの `STATE_REPO_SSH_KEY` に登録します。広い権限のPersonal Access Tokenは保存しません。`MAIL_USER` と `MAIL_PASS` は通知なしの手動監視が成功してから登録します。
 

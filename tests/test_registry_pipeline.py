@@ -7,6 +7,8 @@ from pathlib import Path
 import yaml
 
 from scripts.monitoring.generate_urls import build_urlwatch_jobs, require_expected_count
+from scripts.monitoring.prepare_email_test import DEFAULT_MARKER, build_email_test_job
+from scripts.monitoring.run_email_test import render_email_config, validate_single_test_job
 from scripts.monitoring.run_local import validate_mail_disabled
 from scripts.registry.fetch_registry import (
     google_sheet_csv_url,
@@ -95,6 +97,42 @@ two,true,syosetu,syosetu-work,https://example.com/work,two,,
         require_expected_count(jobs, 55)
         with self.assertRaisesRegex(SystemExit, "Expected 54 jobs"):
             require_expected_count(jobs, 54)
+
+    def test_email_test_job_is_exactly_one_deterministic_url(self) -> None:
+        job = build_email_test_job(
+            [{"kind": "url", "name": "Example", "url": "https://example.com"}],
+            DEFAULT_MARKER,
+        )
+        self.assertEqual(job["name"], "Gmail smoke test: Example")
+        self.assertEqual(
+            job["filter"],
+            [{"re.sub": {"pattern": r"\A[\s\S]*\Z", "repl": DEFAULT_MARKER}}],
+        )
+
+    def test_email_test_rejects_multiple_jobs(self) -> None:
+        with self.assertRaisesRegex(ValueError, "exactly one job"):
+            build_email_test_job([{}, {}], DEFAULT_MARKER)
+
+    def test_email_config_is_rendered_without_leaking_placeholders(self) -> None:
+        template = (PROJECT_ROOT / "config" / "urlwatch.email-test.yaml").read_text(
+            encoding="utf-8"
+        )
+        rendered = render_email_config(template, "user@example.com", "app-password")
+        self.assertNotIn("${URLWATCH_EMAIL_", rendered)
+        self.assertIn("user@example.com", rendered)
+        self.assertIn("app-password", rendered)
+
+    def test_single_prepared_email_job_is_validated(self) -> None:
+        job = build_email_test_job(
+            [{"kind": "url", "url": "https://example.com"}], DEFAULT_MARKER
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "email-test.yaml"
+            path.write_text(
+                yaml.safe_dump_all([job], explicit_start=True, sort_keys=False),
+                encoding="utf-8",
+            )
+            validate_single_test_job(path)
 
 
 if __name__ == "__main__":

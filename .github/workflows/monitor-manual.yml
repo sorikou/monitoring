@@ -1,7 +1,13 @@
-name: Monitor manually without email
+name: Monitor manually
 
 on:
   workflow_dispatch:
+    inputs:
+      send_email:
+        description: Send one deterministic Gmail test notification
+        required: true
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -30,6 +36,23 @@ jobs:
           set -euo pipefail
           test -n "$STATE_REPO_SSH_KEY" || {
             echo "STATE_REPO_SSH_KEY is required" >&2
+            exit 1
+          }
+
+      - name: Check Gmail secrets for one-email test
+        if: ${{ inputs.send_email }}
+        shell: bash
+        env:
+          MAIL_USER: ${{ secrets.MAIL_USER }}
+          MAIL_PASS: ${{ secrets.MAIL_PASS }}
+        run: |
+          set -euo pipefail
+          test -n "$MAIL_USER" || {
+            echo "MAIL_USER is required when send_email=true" >&2
+            exit 1
+          }
+          test -n "$MAIL_PASS" || {
+            echo "MAIL_PASS is required when send_email=true" >&2
             exit 1
           }
 
@@ -71,10 +94,37 @@ jobs:
         run: python scripts/registry/fetch_registry.py
 
       - name: Generate and verify 55 urlwatch jobs
+        if: ${{ inputs.send_email == false }}
         run: python scripts/monitoring/generate_urls.py --expected-count 55
 
       - name: Run one monitoring pass with email disabled
+        if: ${{ inputs.send_email == false }}
         run: python scripts/monitoring/run_local.py --verbose --timeout 600
+
+      - name: Prepare exactly one deterministic Gmail test job
+        if: ${{ inputs.send_email }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/monitoring/generate_urls.py \
+            --expected-count 1 \
+            --include-id monitor-0001 \
+            --output generated/email-test.yaml
+          python scripts/monitoring/prepare_email_test.py \
+            --input generated/email-test.yaml \
+            --output generated/email-test.yaml
+
+      - name: Run exactly one confirmed Gmail test job
+        if: ${{ inputs.send_email }}
+        env:
+          EMAIL_TEST_CONFIRMATION: SEND_ONE_GMAIL_TEST
+          URLWATCH_EMAIL_USER: ${{ secrets.MAIL_USER }}
+          URLWATCH_EMAIL_PASS: ${{ secrets.MAIL_PASS }}
+        run: >-
+          python scripts/monitoring/run_email_test.py
+          --urls generated/email-test.yaml
+          --verbose
+          --timeout 600
 
       - name: Save SQLite state to private repository
         shell: bash

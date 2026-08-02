@@ -1,0 +1,18 @@
+report:
+  stdout:
+    enabled: true
+    color: true
+  email:
+    enabled: true
+    html: false
+    method: smtp
+    from: "${URLWATCH_EMAIL_USER}"
+    to: "${URLWATCH_EMAIL_USER}"
+    subject: "[monitoring test] {count} change: {jobs}"
+    smtp:
+      host: smtp.gmail.com
+      port: 587
+      starttls: true
+      auth: true
+      user: "${URLWATCH_EMAIL_USER}"
+      insecure_password: "${URLWATCH_EMAIL_PASS}"

@@ -2,7 +2,8 @@ name: Monitor
 
 on:
   schedule:
-    - cron: "*/30 * * * *"
+    # Avoid the start-of-hour GitHub Actions scheduling peak.
+    - cron: "7,37 * * * *"
   workflow_dispatch:
     inputs:
       send_email:

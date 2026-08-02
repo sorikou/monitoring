@@ -1,0 +1,103 @@
+name: Monitor manually without email
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: monitoring-state-write
+  cancel-in-progress: false
+
+env:
+  PYTHONUTF8: "1"
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+  PYTHON_KEYRING_BACKEND: keyring.backends.null.Keyring
+  REGISTRY_ENDPOINT: https://docs.google.com/spreadsheets/d/1vAWAh3O06_n74x5J-FubE8tIHVKeZeRlGF5p49yCYUM/edit?usp=sharing
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check required secret
+        shell: bash
+        env:
+          STATE_REPO_SSH_KEY: ${{ secrets.STATE_REPO_SSH_KEY }}
+        run: |
+          set -euo pipefail
+          test -n "$STATE_REPO_SSH_KEY" || {
+            echo "STATE_REPO_SSH_KEY is required" >&2
+            exit 1
+          }
+
+      - name: Check out monitoring code
+        uses: actions/checkout@v6
+
+      - name: Check out private state repository
+        uses: actions/checkout@v6
+        with:
+          repository: sorikou/monitoring-state
+          ssh-key: ${{ secrets.STATE_REPO_SSH_KEY }}
+          path: state-repository
+          fetch-depth: 1
+
+      - name: Require existing SQLite state
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s state-repository/db.sqlite || {
+            echo "Private state repository does not contain db.sqlite" >&2
+            exit 1
+          }
+          cp state-repository/db.sqlite state/db.sqlite
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-lock.txt
+
+      - name: Install locked dependencies
+        run: python -m pip install --requirement requirements-lock.txt
+
+      - name: Run unit tests
+        run: python -m unittest discover -s tests -v
+
+      - name: Fetch and validate public registry
+        run: python scripts/registry/fetch_registry.py
+
+      - name: Generate and verify 55 urlwatch jobs
+        run: python scripts/monitoring/generate_urls.py --expected-count 55
+
+      - name: Run one monitoring pass with email disabled
+        run: python scripts/monitoring/run_local.py --verbose --timeout 600
+
+      - name: Save SQLite state to private repository
+        shell: bash
+        working-directory: state-repository
+        run: |
+          set -euo pipefail
+          test -s ../state/db.sqlite || {
+            echo "Monitoring did not produce state/db.sqlite" >&2
+            exit 1
+          }
+          test ! -e ../state/db.sqlite-wal || {
+            echo "SQLite WAL file still exists; refusing to save incomplete state" >&2
+            exit 1
+          }
+          cp ../state/db.sqlite db.sqlite
+
+          if git diff --quiet -- db.sqlite; then
+            echo "SQLite state is unchanged"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add db.sqlite
+          git commit -m "Update monitoring state"
+          git push origin HEAD:main

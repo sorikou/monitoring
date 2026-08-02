@@ -55,6 +55,14 @@ def write_jobs(path: Path, jobs: list[dict]) -> None:
     temporary.replace(path)
 
 
+def require_expected_count(jobs: list[dict], expected_count: int | None) -> None:
+    if expected_count is not None and len(jobs) != expected_count:
+        raise SystemExit(
+            f"Expected {expected_count} jobs, but selected {len(jobs)}; "
+            "generated file was not changed"
+        )
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Generate urlwatch YAML from registry")
     parser.add_argument("--endpoint", default=os.environ.get("REGISTRY_ENDPOINT"))
@@ -65,6 +73,11 @@ def parse_args() -> argparse.Namespace:
         action="append",
         default=[],
         help="only include this registry id; may be repeated",
+    )
+    parser.add_argument(
+        "--expected-count",
+        type=int,
+        help="fail without replacing the output unless this many jobs are selected",
     )
     parser.add_argument("--timeout", type=float, default=30.0)
     return parser.parse_args()
@@ -86,6 +99,7 @@ def main() -> int:
     jobs = build_urlwatch_jobs(entries, presets)
     if not jobs:
         raise SystemExit("No jobs selected; generated file was not changed")
+    require_expected_count(jobs, args.expected_count)
     write_jobs(args.output, jobs)
     print(f"Generated {len(jobs)} urlwatch jobs: {args.output}")
     return 0

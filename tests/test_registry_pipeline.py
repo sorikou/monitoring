@@ -6,7 +6,7 @@ from pathlib import Path
 
 import yaml
 
-from scripts.monitoring.generate_urls import build_urlwatch_jobs
+from scripts.monitoring.generate_urls import build_urlwatch_jobs, require_expected_count
 from scripts.monitoring.run_local import validate_mail_disabled
 from scripts.registry.fetch_registry import (
     google_sheet_csv_url,
@@ -89,6 +89,12 @@ two,true,syosetu,syosetu-work,https://example.com/work,two,,
             converted,
             "https://docs.google.com/spreadsheets/d/example-id/gviz/tq?tqx=out:csv",
         )
+
+    def test_expected_job_count_is_enforced_before_writing(self) -> None:
+        jobs = [{} for _ in range(55)]
+        require_expected_count(jobs, 55)
+        with self.assertRaisesRegex(SystemExit, "Expected 54 jobs"):
+            require_expected_count(jobs, 54)
 
 
 if __name__ == "__main__":

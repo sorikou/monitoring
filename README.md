@@ -36,7 +36,7 @@
 
 ## セットアップとテスト
 
-Python 3.11以降を用意し、プロジェクトルートで実行します。
+Python 3.12を用意し、プロジェクトルートで実行します。通常の開発では `requirements.txt`、GitHub ActionsではローカルとLinuxの解決結果を固定した `requirements-lock.txt` を使用します。
 
 ```powershell
 python -m venv .venv
@@ -119,13 +119,24 @@ python scripts/monitoring/run_local.py --urls generated/urls.sample.yaml --verbo
 
 WindowsではラッパーがPython UTF-8モードを有効にするため、日本語の抽出正規表現もCP932へ誤変換されません。
 
+## GitHub Actions（通知なし）
+
+現在は次の2ワークフローだけを有効にします。30分ごとの `schedule` とGmail通知はまだありません。
+
+- `Validate registry`: Push、Pull Request、手動実行で、固定依存の導入、単体テスト、公開スプレッドシート55件の取得、YAML生成を検査します。SQLiteとSecretsは使用しません。
+- `Monitor manually without email`: `workflow_dispatch` だけで起動します。Privateの `sorikou/monitoring-state` からDBを取得し、メール無効で1回監視して、更新後DBを同じPrivateリポジトリへ保存します。
+
+手動監視は同時実行を禁止し、20分でタイムアウトします。55件でなければYAML生成を中止し、DBがない場合や保存できない場合も失敗します。
+
+Private状態リポジトリだけを読み書きできるSSH Deploy Keyを用意し、その秘密鍵をPublicリポジトリの `STATE_REPO_SSH_KEY` に登録します。広い権限のPersonal Access Tokenは保存しません。`MAIL_USER` と `MAIL_PASS` は通知なしの手動監視が成功してから登録します。
+
 ## 自動実行を有効にする前の手順
 
 1. Googleスプレッドシートを正本として接続する
-2. PublicリポジトリへSQLiteをコミットせずに監視状態を維持する方法を決める
-3. 通知なしの検査用ワークフローを作る
-4. GitHubリポジトリに `MAIL_USER` と `MAIL_PASS` をSecretsとして登録する
-5. 手動実行専用の監視ワークフローを作る
+2. Privateの `sorikou/monitoring-state` にSQLiteを保存する
+3. `Validate registry` が成功することを確認する
+4. `Monitor manually without email` を1回成功させる
+5. `MAIL_USER` と `MAIL_PASS` をSecretsとして登録する
 6. 手動実行で通知が1通だけ届くことを確認する
 7. 旧版の定期実行を停止してから、新版の30分ごとの実行を有効にする
 

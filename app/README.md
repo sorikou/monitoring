@@ -6,7 +6,7 @@ Googleスプレッドシートを正本のまま使い、監視作品をブラ�
 
 ## 稼働中の本番環境
 
-- [Web管理画面](https://script.google.com/macros/s/AKfycbwMzS4Vt66VVsEs8iSWKC4ZykGjk_7zxpQSN6hQXE7Fx9DGnxcR5Bb26Xc2Nh2cHriz/exec)（Googleアカウントの所有者本人のみアクセス可能）
+- [Web管理画面](https://script.google.com/macros/s/AKfycbwMzS4Vt66VVsEs8iSWKC4ZykGjk_7zxpQSN6hQXE7Fx9DGnxcR5Bb26Xc2Nh2cHriz/exec)（Googleへのログインなしでアクセス可能）
 - [本番スプレッドシート](https://docs.google.com/spreadsheets/d/1vAWAh3O06_n74x5J-FubE8tIHVKeZeRlGF5p49yCYUM/edit?usp=sharing)（監視処理が読む正本）
 - [Apps Scriptプロジェクト](https://script.google.com/u/0/home/projects/1BCnkth3UsK9auhL7a7WSSildYoc6rfPF-fvTWabHEeT9YGUrGpH_bA_l/edit)
 - [切り替え前バックアップ](https://docs.google.com/spreadsheets/d/16X4LffDJEPVRjdtAktuRkRz4ZE0xpIyEKxStF9lkJbU/edit?usp=drivesdk)
@@ -52,15 +52,15 @@ id | enabled | site | preset | url | title | memo | created_at | updated_at | ar
 
 `setupForBoundSpreadsheet` は、Webアプリ実行時にアクティブシートへ依存しないよう、対象IDをScript Propertiesへ保存します。旧8列のシートで実行した場合は、データを保ったまま10列へ移行します。すでに10列なら再実行しても列移行は行いません。
 
-## 自分専用で公開する
+## 一般公開する
 
 1. Apps Script右上の「デプロイ」→「新しいデプロイ」を選びます。
 2. 種類を「ウェブアプリ」にします。
 3. 「次のユーザーとして実行」は自分を選びます。
-4. 「アクセスできるユーザー」は自分のみを選びます。
+4. 「アクセスできるユーザー」は「全員」を選びます。
 5. デプロイ後のURLを開きます。
 
-本番デプロイも「自分のみ」の設定を維持します。URLを知っている別ユーザーや未ログイン環境からは、Googleのログイン画面へ移動します。
+本番デプロイは一般公開です。未ログイン環境からも表示でき、URLを知る人は作品の追加・編集・停止・アーカイブを実行できます。Webアプリは所有者権限で本番シートへ書き込むため、URLを秘密として扱うか、必要になった時点で認証・認可を追加してください。
 
 ## 機能テスト（15項目）
 

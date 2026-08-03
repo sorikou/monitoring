@@ -125,7 +125,9 @@ WindowsではラッパーがPython UTF-8モードを有効にするため、日�
 
 `app/` にはGoogle Apps Script用の管理画面を実装しています。管理できるのは、作品一覧、検索、追加、編集、監視の停止・再開、プリセット選択、URL重複検査、アーカイブ・復元です。GitHub Actionsの実行やGmail送信は行いません。
 
-[Web管理画面](https://script.google.com/macros/s/AKfycbwMzS4Vt66VVsEs8iSWKC4ZykGjk_7zxpQSN6hQXE7Fx9DGnxcR5Bb26Xc2Nh2cHriz/exec) は本番の [Monitoring Registry](https://docs.google.com/spreadsheets/d/1vAWAh3O06_n74x5J-FubE8tIHVKeZeRlGF5p49yCYUM/edit?usp=sharing) へ接続済みです。Web管理画面は所有者本人のみアクセスでき、スプレッドシートの公開閲覧設定とは独立しています。55件、監視中55件、停止中0件、アーカイブ0件の読み込みを確認済みです。
+[Web管理画面](https://script.google.com/macros/s/AKfycbwMzS4Vt66VVsEs8iSWKC4ZykGjk_7zxpQSN6hQXE7Fx9DGnxcR5Bb26Xc2Nh2cHriz/exec) は本番の [Monitoring Registry](https://docs.google.com/spreadsheets/d/1vAWAh3O06_n74x5J-FubE8tIHVKeZeRlGF5p49yCYUM/edit?usp=sharing) へ接続済みです。Web管理画面は一般公開されており、Googleへのログインなしでアクセスできます。55件、監視中55件、停止中0件、アーカイブ0件の読み込みを確認済みです。
+
+一般公開URLを知る人は、管理画面から本番データを追加・編集・停止・アーカイブできます。Webアプリは所有者権限で実行されるため、URLを秘密として扱うか、必要になった時点で認証・認可を追加します。
 
 切り替え前の原本は [バックアップ](https://docs.google.com/spreadsheets/d/16X4LffDJEPVRjdtAktuRkRz4ZE0xpIyEKxStF9lkJbU/edit?usp=drivesdk) として保存しました。55件をコピーした [monitoring-registry-test](https://docs.google.com/spreadsheets/d/1dTRLFKwU7D6khoyIIP-nKU--FkQB-_eWXrmBEnjuuco/edit) も、今後の変更確認用に残しています。どちらも本番Webアプリの接続先ではありません。
 

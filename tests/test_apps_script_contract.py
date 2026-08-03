@@ -18,8 +18,10 @@ class AppsScriptContractTests(unittest.TestCase):
             (APP_ROOT / "appsscript.json").read_text(encoding="utf-8")
         )
 
-    def test_web_app_is_restricted_to_deployer(self) -> None:
-        self.assertEqual(self.manifest["webapp"]["access"], "MYSELF")
+    def test_web_app_allows_anonymous_access(self) -> None:
+        self.assertEqual(
+            self.manifest["webapp"]["access"], "ANYONE_ANONYMOUS"
+        )
         self.assertEqual(
             self.manifest["webapp"]["executeAs"], "USER_DEPLOYING"
         )

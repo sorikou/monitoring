@@ -46,12 +46,22 @@ class AppsScriptContractTests(unittest.TestCase):
         ):
             self.assertIn(f"function {function_name}(", self.code)
 
-    def test_id_is_not_overwritten_during_update(self) -> None:
+    def test_update_only_writes_mutable_columns(self) -> None:
         update_start = self.code.index("function updateEntry(")
         update_end = self.code.index("function setEntryEnabled(")
         update_body = self.code[update_start:update_end]
-        self.assertIn("getRange(location.rowNumber, 2, 1, 9)", update_body)
+        self.assertIn("getRange(location.rowNumber, 2, 1, 6)", update_body)
+        self.assertIn(
+            "getRange(location.rowNumber, 9).setValue(new Date())",
+            update_body,
+        )
+        self.assertNotIn("applyRowFormatting_", update_body)
+        self.assertNotIn("existing.createdAt", update_body)
         self.assertNotIn("setValue(normalized.id)", update_body)
+
+    def test_typed_table_formatting_errors_are_ignored(self) -> None:
+        self.assertIn("function applyCellStructureSafely_(operation)", self.code)
+        self.assertIn("typed column|型付きの列|型指定された列", self.code)
 
     def test_ui_contains_search_filters_and_safe_lifecycle_actions(self) -> None:
         for token in (

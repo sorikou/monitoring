@@ -217,18 +217,18 @@ function updateEntry(payload) {
     }
 
     const enabled = existing.archived ? false : normalized.enabled;
-    sheet.getRange(location.rowNumber, 2, 1, 9).setValues([[
+    // Native Sheets tables reject formatting/data-validation operations on
+    // typed columns. Update only the mutable values here; created_at and
+    // archived are intentionally left untouched.
+    sheet.getRange(location.rowNumber, 2, 1, 6).setValues([[
       enabled,
       normalized.site,
       normalized.preset,
       normalized.url,
       normalized.title || normalized.url,
       normalized.memo,
-      existing.createdAt ? new Date(existing.createdAt) : new Date(),
-      new Date(),
-      existing.archived,
     ]]);
-    applyRowFormatting_(sheet, location.rowNumber);
+    sheet.getRange(location.rowNumber, 9).setValue(new Date());
     SpreadsheetApp.flush();
     return getEntryById_(normalized.id);
   });
@@ -323,10 +323,18 @@ function applySheetStructure_(sheet) {
   const rows = Math.max(sheet.getLastRow() - 1, 0);
   if (rows > 0) {
     const checkboxRule = buildCheckboxRule_();
-    sheet.getRange(2, 2, rows, 1).setDataValidation(checkboxRule);
-    sheet.getRange(2, 10, rows, 1).setDataValidation(checkboxRule);
-    sheet.getRange(2, 4, rows, 1).setDataValidation(buildPresetRule_());
-    sheet.getRange(2, 8, rows, 2).setNumberFormat('yyyy-MM-dd HH:mm:ss');
+    applyCellStructureSafely_(function () {
+      sheet.getRange(2, 2, rows, 1).setDataValidation(checkboxRule);
+    });
+    applyCellStructureSafely_(function () {
+      sheet.getRange(2, 10, rows, 1).setDataValidation(checkboxRule);
+    });
+    applyCellStructureSafely_(function () {
+      sheet.getRange(2, 4, rows, 1).setDataValidation(buildPresetRule_());
+    });
+    applyCellStructureSafely_(function () {
+      sheet.getRange(2, 8, rows, 2).setNumberFormat('yyyy-MM-dd HH:mm:ss');
+    });
   }
 
   [120, 90, 170, 220, 320, 260, 240, 150, 150, 100].forEach(function (width, index) {
@@ -336,10 +344,28 @@ function applySheetStructure_(sheet) {
 
 function applyRowFormatting_(sheet, rowNumber) {
   const checkboxRule = buildCheckboxRule_();
-  sheet.getRange(rowNumber, 2).setDataValidation(checkboxRule);
-  sheet.getRange(rowNumber, 4).setDataValidation(buildPresetRule_());
-  sheet.getRange(rowNumber, 10).setDataValidation(checkboxRule);
-  sheet.getRange(rowNumber, 8, 1, 2).setNumberFormat('yyyy-MM-dd HH:mm:ss');
+  applyCellStructureSafely_(function () {
+    sheet.getRange(rowNumber, 2).setDataValidation(checkboxRule);
+  });
+  applyCellStructureSafely_(function () {
+    sheet.getRange(rowNumber, 4).setDataValidation(buildPresetRule_());
+  });
+  applyCellStructureSafely_(function () {
+    sheet.getRange(rowNumber, 10).setDataValidation(checkboxRule);
+  });
+  applyCellStructureSafely_(function () {
+    sheet.getRange(rowNumber, 8, 1, 2).setNumberFormat('yyyy-MM-dd HH:mm:ss');
+  });
+}
+
+function applyCellStructureSafely_(operation) {
+  try {
+    operation();
+  } catch (error) {
+    const message = String(error && error.message ? error.message : error);
+    if (/typed column|型付きの列|型指定された列/i.test(message)) return;
+    throw error;
+  }
 }
 
 function buildCheckboxRule_() {

@@ -12,7 +12,7 @@ on:
         default: false
         type: boolean
       run_full_monitoring:
-        description: Run all 55 jobs with Gmail notifications enabled
+        description: Run all enabled jobs with Gmail notifications enabled
         required: true
         default: false
         type: boolean
@@ -108,9 +108,9 @@ jobs:
       - name: Fetch and validate public registry
         run: python scripts/registry/fetch_registry.py
 
-      - name: Generate and verify 55 urlwatch jobs
+      - name: Generate and verify enabled urlwatch jobs
         if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.send_email == false) }}
-        run: python scripts/monitoring/generate_urls.py --expected-count 55
+        run: python scripts/monitoring/generate_urls.py
 
       - name: Run one monitoring pass with email disabled
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.send_email == false && inputs.run_full_monitoring == false }}
@@ -119,12 +119,11 @@ jobs:
       - name: Run full monitoring with Gmail enabled
         if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.run_full_monitoring) }}
         env:
-          SCHEDULED_MONITORING_CONFIRMATION: RUN_55_WITH_GMAIL
+          SCHEDULED_MONITORING_CONFIRMATION: RUN_ENABLED_WITH_GMAIL
           URLWATCH_EMAIL_USER: ${{ secrets.MAIL_USER }}
           URLWATCH_EMAIL_PASS: ${{ secrets.MAIL_PASS }}
         run: >-
           python scripts/monitoring/run_scheduled.py
-          --expected-count 55
           --verbose
           --timeout 600
 

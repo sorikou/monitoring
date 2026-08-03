@@ -152,7 +152,7 @@ two,true,syosetu,syosetu-work,https://example.com/work,two,,
             )
             validate_single_test_job(path)
 
-    def test_scheduled_monitoring_accepts_55_unique_jobs(self) -> None:
+    def test_scheduled_monitoring_accepts_dynamic_enabled_job_count(self) -> None:
         jobs = [
             {
                 "kind": "url",
@@ -160,7 +160,7 @@ two,true,syosetu,syosetu-work,https://example.com/work,two,,
                 "url": f"https://example.com/{index}",
                 "filter": ["strip"],
             }
-            for index in range(55)
+            for index in range(54)
         ]
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "scheduled.yaml"
@@ -168,7 +168,14 @@ two,true,syosetu,syosetu-work,https://example.com/work,two,,
                 yaml.safe_dump_all(jobs, explicit_start=True, sort_keys=False),
                 encoding="utf-8",
             )
-            validate_scheduled_jobs(path)
+            self.assertEqual(validate_scheduled_jobs(path), 54)
+
+    def test_scheduled_monitoring_rejects_empty_job_file(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "scheduled.yaml"
+            path.write_text("", encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "at least one enabled job"):
+                validate_scheduled_jobs(path)
 
     def test_scheduled_monitoring_rejects_email_smoke_test(self) -> None:
         jobs = [

@@ -38,5 +38,5 @@ jobs:
       - name: Fetch and validate public registry
         run: python scripts/registry/fetch_registry.py
 
-      - name: Generate and verify 55 urlwatch jobs
-        run: python scripts/monitoring/generate_urls.py --expected-count 55
+      - name: Generate and verify enabled urlwatch jobs
+        run: python scripts/monitoring/generate_urls.py

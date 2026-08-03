@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the full registry with Gmail enabled for a confirmed scheduled pass."""
+"""Run all enabled registry jobs with Gmail for a confirmed scheduled pass."""
 
 from __future__ import annotations
 
@@ -24,13 +24,12 @@ from scripts.monitoring.run_local import find_urlwatch  # noqa: E402
 DEFAULT_CONFIG = PROJECT_ROOT / "config" / "urlwatch.email.yaml"
 DEFAULT_URLS = PROJECT_ROOT / "generated" / "urls.yaml"
 DEFAULT_DATABASE = PROJECT_ROOT / "state" / "db.sqlite"
-DEFAULT_EXPECTED_COUNT = 55
-REQUIRED_CONFIRMATION = "RUN_55_WITH_GMAIL"
+REQUIRED_CONFIRMATION = "RUN_ENABLED_WITH_GMAIL"
 
 
 def validate_scheduled_jobs(
-    path: Path, expected_count: int = DEFAULT_EXPECTED_COUNT
-) -> None:
+    path: Path, expected_count: int | None = None
+) -> int:
     try:
         jobs = [
             job
@@ -40,7 +39,10 @@ def validate_scheduled_jobs(
     except (OSError, yaml.YAMLError) as error:
         raise RuntimeError(f"Failed to read scheduled jobs: {path}") from error
 
-    if len(jobs) != expected_count:
+    if not jobs:
+        raise ValueError("Scheduled monitoring requires at least one enabled job")
+
+    if expected_count is not None and len(jobs) != expected_count:
         raise ValueError(
             f"Scheduled monitoring requires exactly {expected_count} jobs, "
             f"got {len(jobs)}"
@@ -62,15 +64,21 @@ def validate_scheduled_jobs(
     if len(set(urls)) != len(urls):
         raise ValueError("Scheduled monitoring requires unique URLs")
 
+    return len(jobs)
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Run one confirmed 55-job monitoring pass with Gmail enabled"
+        description="Run all enabled monitoring jobs with Gmail enabled"
     )
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     parser.add_argument("--urls", type=Path, default=DEFAULT_URLS)
     parser.add_argument("--database", type=Path, default=DEFAULT_DATABASE)
-    parser.add_argument("--expected-count", type=int, default=DEFAULT_EXPECTED_COUNT)
+    parser.add_argument(
+        "--expected-count",
+        type=int,
+        help="optionally require an exact job count before monitoring",
+    )
     parser.add_argument("--timeout", type=float, default=600.0)
     parser.add_argument("--verbose", action="store_true")
     parser.add_argument("--dry-run", action="store_true")
@@ -84,7 +92,7 @@ def main() -> int:
     if not args.database.is_file():
         raise SystemExit(f"SQLite database does not exist: {args.database}")
 
-    validate_scheduled_jobs(args.urls, args.expected_count)
+    job_count = validate_scheduled_jobs(args.urls, args.expected_count)
     try:
         template = args.config.read_text(encoding="utf-8")
     except OSError as error:
@@ -97,7 +105,7 @@ def main() -> int:
 
     print(
         "Mail reporter: enabled for confirmed scheduled monitoring of "
-        f"{args.expected_count} jobs"
+        f"{job_count} jobs"
     )
     if args.dry_run:
         print("Dry run: SMTP connection and monitoring were not started")

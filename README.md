@@ -32,7 +32,7 @@
 
 ## 現在の段階
 
-初期構造、旧版ファイルの安全な退避、既存URLの一括変換、9種類のサイト別プリセット、公開CSVの取得・検査、監視用YAML生成、メール無効のローカル監視まで実装済みです。通知なしCIと手動監視はGitHub Actionsでも成功しています。監視状態はPrivateの `sorikou/monitoring-state` に保存します。Gmailの1通限定テストと再送防止も確認済みで、通常55件を1時間ごとに監視するワークフローを使用します。作品の追加・編集・停止・アーカイブを行う自分専用のApps Script Web管理画面も本番シートへ接続してデプロイ済みです。旧ワークフローは `migration/workflow.legacy.yml` に参考資料として残しています。
+初期構造、旧版ファイルの安全な退避、既存URLの一括変換、9種類のサイト別プリセット、公開CSVの取得・検査、監視用YAML生成、メール無効のローカル監視まで実装済みです。通知なしCIと手動監視はGitHub Actionsでも成功しています。監視状態はPrivateの `sorikou/monitoring-state` に保存します。Gmailの1通限定テストと再送防止も確認済みで、有効な登録を1時間ごとに監視するワークフローを使用します。作品の追加・編集・停止・アーカイブを行う自分専用のApps Script Web管理画面も本番シートへ接続してデプロイ済みです。旧ワークフローは `migration/workflow.legacy.yml` に参考資料として残しています。
 
 ## セットアップとテスト
 
@@ -125,7 +125,7 @@ WindowsではラッパーがPython UTF-8モードを有効にするため、日�
 
 `app/` にはGoogle Apps Script用の管理画面を実装しています。管理できるのは、作品一覧、検索、追加、編集、監視の停止・再開、プリセット選択、URL重複検査、アーカイブ・復元です。GitHub Actionsの実行やGmail送信は行いません。
 
-[Web管理画面](https://script.google.com/macros/s/AKfycbwMzS4Vt66VVsEs8iSWKC4ZykGjk_7zxpQSN6hQXE7Fx9DGnxcR5Bb26Xc2Nh2cHriz/exec) は本番の [Monitoring Registry](https://docs.google.com/spreadsheets/d/1vAWAh3O06_n74x5J-FubE8tIHVKeZeRlGF5p49yCYUM/edit?usp=sharing) へ接続済みです。Web管理画面は一般公開されており、Googleへのログインなしでアクセスできます。55件、監視中55件、停止中0件、アーカイブ0件の読み込みを確認済みです。
+[Web管理画面](https://script.google.com/macros/s/AKfycbwMzS4Vt66VVsEs8iSWKC4ZykGjk_7zxpQSN6hQXE7Fx9DGnxcR5Bb26Xc2Nh2cHriz/exec) は本番の [Monitoring Registry](https://docs.google.com/spreadsheets/d/1vAWAh3O06_n74x5J-FubE8tIHVKeZeRlGF5p49yCYUM/edit?usp=sharing) へ接続済みです。Web管理画面は一般公開されており、Googleへのログインなしでアクセスできます。登録済み55件の有効・停止・アーカイブ状態は、Web管理画面の操作に追従します。
 
 一般公開URLを知る人は、管理画面から本番データを追加・編集・停止・アーカイブできます。Webアプリは所有者権限で実行されるため、URLを秘密として扱うか、必要になった時点で認証・認可を追加します。
 
@@ -137,14 +137,14 @@ Apps Scriptへの設定、自分だけがアクセスできるWebアプリとし
 
 現在は次の2ワークフローを使用します。
 
-- `Validate registry`: Push、Pull Request、手動実行で、固定依存の導入、単体テスト、公開スプレッドシート55件の取得、YAML生成を検査します。SQLiteとSecretsは使用しません。
-- `Monitor`: 毎時7分の `schedule` と `workflow_dispatch` で起動します。Privateの `sorikou/monitoring-state` からDBを取得し、更新後DBを同じPrivateリポジトリへ保存します。定期実行は通常55件をGmail通知ありで監視します。手動実行の `send_email` と `run_full_monitoring` の初期値はどちらも `false` です。
+- `Validate registry`: Push、Pull Request、手動実行で、固定依存の導入、単体テスト、公開スプレッドシートの有効な登録の取得、YAML生成を検査します。SQLiteとSecretsは使用しません。
+- `Monitor`: 毎時7分の `schedule` と `workflow_dispatch` で起動します。Privateの `sorikou/monitoring-state` からDBを取得し、更新後DBを同じPrivateリポジトリへ保存します。定期実行は有効な登録すべてをGmail通知ありで監視します。手動実行の `send_email` と `run_full_monitoring` の初期値はどちらも `false` です。
 
-手動監視は同時実行を禁止し、20分でタイムアウトします。通常実行は55件でなければYAML生成を中止し、DBがない場合や保存できない場合も失敗します。
+手動監視は同時実行を禁止し、20分でタイムアウトします。有効な登録が0件ならYAML生成を中止し、URL重複や不正プリセット、DBがない場合や保存できない場合も失敗します。停止中の登録は正常に監視対象から除外されます。
 
-手動実行の `send_email=true` はGmail動作確認専用です。既存URLと同じDBキーを持つ1件だけを固定テスト値へ変更するため、初回は最大1通、同条件の再実行では変更なしとなり再送されません。確認後は `send_email=false` を実行し、通常55件の状態へ戻します。
+手動実行の `send_email=true` はGmail動作確認専用です。既存URLと同じDBキーを持つ1件だけを固定テスト値へ変更するため、初回は最大1通、同条件の再実行では変更なしとなり再送されません。確認後は `send_email=false` を実行し、有効な登録すべての状態へ戻します。
 
-手動実行の `run_full_monitoring=true` は、定期実行と同じ通常55件・Gmail有効の経路を確認するために使用します。`send_email` と同時に有効にはできません。
+手動実行の `run_full_monitoring=true` は、定期実行と同じ有効な登録すべて・Gmail有効の経路を確認するために使用します。`send_email` と同時に有効にはできません。
 
 Private状態リポジトリだけを読み書きできるSSH Deploy Keyを用意し、その秘密鍵をPublicリポジトリの `STATE_REPO_SSH_KEY` に登録します。広い権限のPersonal Access Tokenは保存しません。`MAIL_USER` と `MAIL_PASS` は通知なしの手動監視が成功してから登録します。
 

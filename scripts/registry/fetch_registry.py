@@ -24,10 +24,10 @@ REQUIRED_COLUMNS = {
     "site",
     "preset",
     "url",
-    "name",
     "memo",
     "updated_at",
 }
+TITLE_COLUMNS = {"name", "title"}
 TRUE_VALUES = {"1", "true", "yes", "on"}
 FALSE_VALUES = {"0", "false", "no", "off", ""}
 
@@ -41,16 +41,22 @@ class RegistryEntry:
     url: str
     name: str
     memo: str
+    created_at: str
     updated_at: str
+    archived: bool
 
 
-def parse_enabled(value: str, row_number: int) -> bool:
+def parse_boolean(value: str, row_number: int, field_name: str) -> bool:
     normalized = value.strip().lower()
     if normalized in TRUE_VALUES:
         return True
     if normalized in FALSE_VALUES:
         return False
-    raise ValueError(f"Row {row_number}: invalid enabled value {value!r}")
+    raise ValueError(f"Row {row_number}: invalid {field_name} value {value!r}")
+
+
+def parse_enabled(value: str, row_number: int) -> bool:
+    return parse_boolean(value, row_number, "enabled")
 
 
 def google_sheet_csv_url(endpoint: str) -> str:
@@ -126,6 +132,8 @@ def parse_registry_csv(text: str, presets: dict[str, dict]) -> list[RegistryEntr
     missing = REQUIRED_COLUMNS - headers
     if missing:
         raise ValueError(f"Registry is missing required columns: {', '.join(sorted(missing))}")
+    if not headers.intersection(TITLE_COLUMNS):
+        raise ValueError("Registry is missing required column: title (or legacy name)")
 
     entries: list[RegistryEntry] = []
     seen_ids: set[str] = set()
@@ -139,13 +147,18 @@ def parse_registry_csv(text: str, presets: dict[str, dict]) -> list[RegistryEntr
         seen_ids.add(entry_id)
 
         enabled = parse_enabled(row.get("enabled") or "", row_number)
-        if not enabled:
+        archived = parse_boolean(row.get("archived") or "", row_number, "archived")
+        if not enabled or archived:
             continue
 
         site = (row.get("site") or "").strip()
         preset_name = (row.get("preset") or "").strip()
         url = (row.get("url") or "").strip()
-        name = (row.get("name") or "").strip() or url
+        name = (
+            (row.get("title") or "").strip()
+            or (row.get("name") or "").strip()
+            or url
+        )
         parsed_url = urlparse(url)
         if parsed_url.scheme not in {"http", "https"} or not parsed_url.hostname:
             raise ValueError(f"Row {row_number}: invalid URL {url!r}")
@@ -171,7 +184,9 @@ def parse_registry_csv(text: str, presets: dict[str, dict]) -> list[RegistryEntr
                 url=url,
                 name=name,
                 memo=(row.get("memo") or "").strip(),
+                created_at=(row.get("created_at") or "").strip(),
                 updated_at=(row.get("updated_at") or "").strip(),
+                archived=False,
             )
         )
 

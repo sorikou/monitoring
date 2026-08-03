@@ -20,7 +20,7 @@
 
 | パス | 役割 |
 |---|---|
-| `app/` | 将来のGoogle Apps ScriptまたはWeb管理画面 |
+| `app/` | Google Apps Scriptの作品管理Web画面 |
 | `config/` | 通知設定とサイト別の監視ルール |
 | `scripts/registry/` | Googleスプレッドシートから作品一覧を取得・検査する処理 |
 | `scripts/monitoring/` | urlwatch用データの生成と監視実行に関する処理 |
@@ -32,7 +32,7 @@
 
 ## 現在の段階
 
-初期構造、旧版ファイルの安全な退避、既存URLの一括変換、9種類のサイト別プリセット、公開CSVの取得・検査、監視用YAML生成、メール無効のローカル監視まで実装済みです。通知なしCIと手動監視はGitHub Actionsでも成功しています。監視状態はPrivateの `sorikou/monitoring-state` に保存します。Gmailの1通限定テストと再送防止も確認済みで、通常55件を1時間ごとに監視するワークフローを使用します。旧ワークフローは `migration/workflow.legacy.yml` に参考資料として残しています。
+初期構造、旧版ファイルの安全な退避、既存URLの一括変換、9種類のサイト別プリセット、公開CSVの取得・検査、監視用YAML生成、メール無効のローカル監視まで実装済みです。通知なしCIと手動監視はGitHub Actionsでも成功しています。監視状態はPrivateの `sorikou/monitoring-state` に保存します。Gmailの1通限定テストと再送防止も確認済みで、通常55件を1時間ごとに監視するワークフローを使用します。作品の追加・編集・停止・アーカイブを行う自分専用のApps Script Web管理画面も `app/` に実装しています。旧ワークフローは `migration/workflow.legacy.yml` に参考資料として残しています。
 
 ## セットアップとテスト
 
@@ -76,6 +76,8 @@ id | enabled | site | preset | url | name | memo | updated_at
 - `memo`: 管理メモ。監視処理では使用しない
 - `updated_at`: 最終編集日
 
+この8列は移行用の旧形式です。Web管理画面では `name` を `title` に変更し、`created_at` と `archived` を加えた10列形式を使用します。監視側は両方を読めるため、本番シートを切り替えるまで既存の定期監視は止まりません。
+
 `generated/urls.yaml` は自動生成物なのでGit管理外です。将来のGitHub Actionsでも、監視実行前に同じ生成処理を呼び出します。
 
 ## GoogleスプレッドシートからYAMLを作る
@@ -88,7 +90,7 @@ python scripts/registry/fetch_registry.py
 python scripts/monitoring/generate_urls.py
 ```
 
-取得時は、必須8列、`enabled`、URL形式、固定ID、URL重複、プリセット存在、サイトとプリセットの対応、有効行が1件以上あることを検査します。
+取得時は、共通の必須列、`title` または旧 `name`、`enabled`、任意の `archived`、URL形式、固定ID、URL重複、プリセット存在、サイトとプリセットの対応、有効行が1件以上あることを検査します。`archived=TRUE` の行は、`enabled` の値にかかわらず監視対象から除外します。
 
 Google Sheetを準備する前は、同梱CSVを指定して同じ処理を確認できます。
 
@@ -118,6 +120,14 @@ python scripts/monitoring/run_local.py --urls generated/urls.sample.yaml --verbo
 ```
 
 WindowsではラッパーがPython UTF-8モードを有効にするため、日本語の抽出正規表現もCP932へ誤変換されません。
+
+## Web管理画面
+
+`app/` にはGoogle Apps Script用の管理画面を実装しています。管理できるのは、作品一覧、検索、追加、編集、監視の停止・再開、プリセット選択、URL重複検査、アーカイブ・復元です。GitHub Actionsの実行やGmail送信は行いません。
+
+原本を直接変更せず、55件をコピーした [monitoring-registry-test](https://docs.google.com/spreadsheets/d/1dTRLFKwU7D6khoyIIP-nKU--FkQB-_eWXrmBEnjuuco/edit) をテスト接続先として用意しています。10列スキーマへの移行も完了しています。
+
+Apps Scriptへの設定、自分だけがアクセスできるWebアプリとしてのデプロイ、15項目の機能確認、本番切り替えは [app/README.md](app/README.md) を参照してください。更新処理はLock Serviceで直列化し、固定IDの重複を防ぎます。Web実行時はアクティブシートに依存せず、初回設定で保存した明示的なスプレッドシートIDを使用します。
 
 ## GitHub Actions
 

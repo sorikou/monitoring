@@ -52,6 +52,23 @@ two,true,syosetu,syosetu-work,https://example.com/enabled,enabled,,
         entries = parse_registry_csv(text, self.presets)
         self.assertEqual([entry.id for entry in entries], ["two"])
 
+    def test_web_registry_schema_uses_title_and_ignores_archived_rows(self) -> None:
+        text = """id,enabled,site,preset,url,title,memo,created_at,updated_at,archived
+one,true,syosetu,syosetu-work,https://example.com/active,表示名,,2026-08-03,2026-08-03,false
+two,true,syosetu,syosetu-work,https://example.com/archived,保管済み,,2026-08-03,2026-08-03,true
+"""
+        entries = parse_registry_csv(text, self.presets)
+        self.assertEqual([entry.id for entry in entries], ["one"])
+        self.assertEqual(entries[0].name, "表示名")
+        self.assertEqual(entries[0].created_at, "2026-08-03")
+
+    def test_registry_requires_title_or_legacy_name(self) -> None:
+        text = """id,enabled,site,preset,url,memo,updated_at
+one,true,syosetu,syosetu-work,https://example.com/work,,2026-08-03
+"""
+        with self.assertRaisesRegex(ValueError, "title.*legacy name"):
+            parse_registry_csv(text, self.presets)
+
     def test_unknown_preset_is_rejected(self) -> None:
         text = """id,enabled,site,preset,url,name,memo,updated_at
 one,true,syosetu,missing,https://example.com/work,work,,

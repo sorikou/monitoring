@@ -83,6 +83,11 @@ class AppsScriptContractTests(unittest.TestCase):
         self.assertNotIn("GmailApp", combined)
         self.assertNotIn("workflow_dispatch", combined)
 
+    def test_action_buttons_do_not_change_table_cell_layout(self) -> None:
+        self.assertIn("actionCell.className = 'actions-cell'", self.index)
+        self.assertIn("actionGroup.className = 'actions'", self.index)
+        self.assertNotIn("actionCell.className = 'actions'", self.index)
+
 
 if __name__ == "__main__":
     unittest.main()

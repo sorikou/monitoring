@@ -133,7 +133,8 @@
       .id { display: block; margin-top: 4px; color: var(--muted); font-family: ui-monospace, monospace; font-size: 11px; font-weight: 500; }
       .url { display: inline-block; max-width: 330px; color: var(--brand-dark); overflow-wrap: anywhere; }
       .small { color: var(--muted); font-size: 12px; }
-      .actions { display: flex; flex-wrap: wrap; gap: 6px; min-width: 210px; }
+      .actions-cell { min-width: 210px; }
+      .actions { display: flex; flex-wrap: wrap; gap: 6px; }
 
       .badge {
         display: inline-flex;
@@ -483,14 +484,17 @@
         updatedCell.className = 'small';
 
         const actionCell = document.createElement('td');
-        actionCell.className = 'actions';
+        actionCell.className = 'actions-cell';
+        const actionGroup = document.createElement('div');
+        actionGroup.className = 'actions';
         if (entry.archived) {
-          actionCell.appendChild(actionButton('復元', () => restore(entry), false));
+          actionGroup.appendChild(actionButton('復元', () => restore(entry), false));
         } else {
-          actionCell.appendChild(actionButton('編集', () => openEditDialog(entry), false));
-          actionCell.appendChild(actionButton(entry.enabled ? '停止' : '再開', () => toggle(entry), false));
-          actionCell.appendChild(actionButton('保管', () => archive(entry), true));
+          actionGroup.appendChild(actionButton('編集', () => openEditDialog(entry), false));
+          actionGroup.appendChild(actionButton(entry.enabled ? '停止' : '再開', () => toggle(entry), false));
+          actionGroup.appendChild(actionButton('保管', () => archive(entry), true));
         }
+        actionCell.appendChild(actionGroup);
 
         [statusCell, titleCell, presetCell, urlCell, updatedCell, actionCell].forEach(cell => row.appendChild(cell));
         return row;

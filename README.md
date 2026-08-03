@@ -1,6 +1,6 @@
 # monitoring-next
 
-小説投稿サイトなどの更新を30分ごとに確認し、変更があった場合にGmailで通知する監視システムの再構築用リポジトリです。
+小説投稿サイトなどの更新を1時間ごとに確認し、変更があった場合にGmailで通知する監視システムの再構築用リポジトリです。
 
 旧版は隣の `../monitoring-reference/` に参照専用で残し、このリポジトリは独立したGit履歴で管理します。
 
@@ -10,7 +10,7 @@
 - urlwatchへ渡すYAMLは `generated/` に自動生成し、人が直接編集しない
 - サイトごとの抽出設定は `config/site-presets.yaml` に置く
 - 通常ユーザーは作品URLとサイト種類だけを登録する
-- 監視間隔は30分とする
+- 監視間隔は1時間とする
 - 初回登録時は基準データだけを保存し、通知しない
 - 監視の停止は作品の物理削除ではなく無効化で扱う
 - 旧版のSQLiteはローカルの `state/db.sqlite` に引き継ぐが、Publicリポジトリにはコミットしない
@@ -32,7 +32,7 @@
 
 ## 現在の段階
 
-初期構造、旧版ファイルの安全な退避、既存URLの一括変換、9種類のサイト別プリセット、公開CSVの取得・検査、監視用YAML生成、メール無効のローカル監視まで実装済みです。通知なしCIと手動監視はGitHub Actionsでも成功しています。監視状態はPrivateの `sorikou/monitoring-state` に保存します。Gmailの1通限定テストと再送防止も確認済みで、通常55件を30分ごとに監視するワークフローを使用します。旧ワークフローは `migration/workflow.legacy.yml` に参考資料として残しています。
+初期構造、旧版ファイルの安全な退避、既存URLの一括変換、9種類のサイト別プリセット、公開CSVの取得・検査、監視用YAML生成、メール無効のローカル監視まで実装済みです。通知なしCIと手動監視はGitHub Actionsでも成功しています。監視状態はPrivateの `sorikou/monitoring-state` に保存します。Gmailの1通限定テストと再送防止も確認済みで、通常55件を1時間ごとに監視するワークフローを使用します。旧ワークフローは `migration/workflow.legacy.yml` に参考資料として残しています。
 
 ## セットアップとテスト
 
@@ -124,7 +124,7 @@ WindowsではラッパーがPython UTF-8モードを有効にするため、日�
 現在は次の2ワークフローを使用します。
 
 - `Validate registry`: Push、Pull Request、手動実行で、固定依存の導入、単体テスト、公開スプレッドシート55件の取得、YAML生成を検査します。SQLiteとSecretsは使用しません。
-- `Monitor`: 毎時7分・37分の `schedule` と `workflow_dispatch` で起動します。Privateの `sorikou/monitoring-state` からDBを取得し、更新後DBを同じPrivateリポジトリへ保存します。定期実行は通常55件をGmail通知ありで監視します。手動実行の `send_email` と `run_full_monitoring` の初期値はどちらも `false` です。
+- `Monitor`: 毎時7分の `schedule` と `workflow_dispatch` で起動します。Privateの `sorikou/monitoring-state` からDBを取得し、更新後DBを同じPrivateリポジトリへ保存します。定期実行は通常55件をGmail通知ありで監視します。手動実行の `send_email` と `run_full_monitoring` の初期値はどちらも `false` です。
 
 手動監視は同時実行を禁止し、20分でタイムアウトします。通常実行は55件でなければYAML生成を中止し、DBがない場合や保存できない場合も失敗します。
 
@@ -142,7 +142,7 @@ Private状態リポジトリだけを読み書きできるSSH Deploy Keyを用�
 4. `Monitor manually without email` を1回成功させる
 5. `MAIL_USER` と `MAIL_PASS` をSecretsとして登録する
 6. 手動実行で通知が1通だけ届くことを確認する
-7. 旧版の定期実行を停止してから、新版の30分ごとの実行を有効にする（完了後、最初の2～3回を確認する）
+7. 旧版の定期実行を停止してから、新版の1時間ごとの実行を有効にする（完了後、最初の2～3回を確認する）
 
 SQLiteには取得済みページの内容が含まれる可能性があります。このPublicリポジトリでは `state/db.sqlite` をGit管理外とし、公開履歴に含めません。GitHub Actionsの監視状態はPrivateの `sorikou/monitoring-state` だけに保存します。
 

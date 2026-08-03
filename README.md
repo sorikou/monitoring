@@ -32,7 +32,7 @@
 
 ## 現在の段階
 
-初期構造、旧版ファイルの安全な退避、既存URLの一括変換、9種類のサイト別プリセット、公開CSVの取得・検査、監視用YAML生成、メール無効のローカル監視まで実装済みです。通知なしCIと手動監視はGitHub Actionsでも成功しています。監視状態はPrivateの `sorikou/monitoring-state` に保存します。Gmailの1通限定テストと再送防止も確認済みで、通常55件を1時間ごとに監視するワークフローを使用します。作品の追加・編集・停止・アーカイブを行う自分専用のApps Script Web管理画面も `app/` に実装しています。旧ワークフローは `migration/workflow.legacy.yml` に参考資料として残しています。
+初期構造、旧版ファイルの安全な退避、既存URLの一括変換、9種類のサイト別プリセット、公開CSVの取得・検査、監視用YAML生成、メール無効のローカル監視まで実装済みです。通知なしCIと手動監視はGitHub Actionsでも成功しています。監視状態はPrivateの `sorikou/monitoring-state` に保存します。Gmailの1通限定テストと再送防止も確認済みで、通常55件を1時間ごとに監視するワークフローを使用します。作品の追加・編集・停止・アーカイブを行う自分専用のApps Script Web管理画面も本番シートへ接続してデプロイ済みです。旧ワークフローは `migration/workflow.legacy.yml` に参考資料として残しています。
 
 ## セットアップとテスト
 
@@ -125,9 +125,11 @@ WindowsではラッパーがPython UTF-8モードを有効にするため、日�
 
 `app/` にはGoogle Apps Script用の管理画面を実装しています。管理できるのは、作品一覧、検索、追加、編集、監視の停止・再開、プリセット選択、URL重複検査、アーカイブ・復元です。GitHub Actionsの実行やGmail送信は行いません。
 
-原本を直接変更せず、55件をコピーした [monitoring-registry-test](https://docs.google.com/spreadsheets/d/1dTRLFKwU7D6khoyIIP-nKU--FkQB-_eWXrmBEnjuuco/edit) をテスト接続先として用意しています。10列スキーマへの移行も完了しています。
+[Web管理画面](https://script.google.com/macros/s/AKfycbwMzS4Vt66VVsEs8iSWKC4ZykGjk_7zxpQSN6hQXE7Fx9DGnxcR5Bb26Xc2Nh2cHriz/exec) は本番の [Monitoring Registry](https://docs.google.com/spreadsheets/d/1vAWAh3O06_n74x5J-FubE8tIHVKeZeRlGF5p49yCYUM/edit?usp=sharing) へ接続済みです。Web管理画面は所有者本人のみアクセスでき、スプレッドシートの公開閲覧設定とは独立しています。55件、監視中55件、停止中0件、アーカイブ0件の読み込みを確認済みです。
 
-Apps Scriptへの設定、自分だけがアクセスできるWebアプリとしてのデプロイ、15項目の機能確認、本番切り替えは [app/README.md](app/README.md) を参照してください。更新処理はLock Serviceで直列化し、固定IDの重複を防ぎます。Web実行時はアクティブシートに依存せず、初回設定で保存した明示的なスプレッドシートIDを使用します。
+切り替え前の原本は [バックアップ](https://docs.google.com/spreadsheets/d/16X4LffDJEPVRjdtAktuRkRz4ZE0xpIyEKxStF9lkJbU/edit?usp=drivesdk) として保存しました。55件をコピーした [monitoring-registry-test](https://docs.google.com/spreadsheets/d/1dTRLFKwU7D6khoyIIP-nKU--FkQB-_eWXrmBEnjuuco/edit) も、今後の変更確認用に残しています。どちらも本番Webアプリの接続先ではありません。
+
+Apps Scriptへの設定、自分だけがアクセスできるWebアプリとしてのデプロイ、機能確認、運用方法は [app/README.md](app/README.md) を参照してください。更新処理はLock Serviceで直列化し、固定IDの重複を防ぎます。Web実行時はアクティブシートに依存せず、Script Propertiesに保存した明示的な本番スプレッドシートIDを使用します。
 
 ## GitHub Actions
 

@@ -4,6 +4,15 @@ Googleスプレッドシートを正本のまま使い、監視作品をブラ�
 
 この画面で行うのは、一覧、検索、追加、編集、監視の停止・再開、アーカイブ・復元です。GitHub Actionsの起動、urlwatchの実行、Gmail送信は行いません。スプレッドシートを更新した後、次回の定期監視が通常どおり読み取ります。
 
+## 稼働中の本番環境
+
+- [Web管理画面](https://script.google.com/macros/s/AKfycbwMzS4Vt66VVsEs8iSWKC4ZykGjk_7zxpQSN6hQXE7Fx9DGnxcR5Bb26Xc2Nh2cHriz/exec)（Googleアカウントの所有者本人のみアクセス可能）
+- [本番スプレッドシート](https://docs.google.com/spreadsheets/d/1vAWAh3O06_n74x5J-FubE8tIHVKeZeRlGF5p49yCYUM/edit?usp=sharing)（監視処理が読む正本）
+- [Apps Scriptプロジェクト](https://script.google.com/u/0/home/projects/1BCnkth3UsK9auhL7a7WSSildYoc6rfPF-fvTWabHEeT9YGUrGpH_bA_l/edit)
+- [切り替え前バックアップ](https://docs.google.com/spreadsheets/d/16X4LffDJEPVRjdtAktuRkRz4ZE0xpIyEKxStF9lkJbU/edit?usp=drivesdk)
+
+2026年8月3日に本番シートを10列へ移行し、55件、監視中55件、停止中0件、アーカイブ0件でWeb管理画面から読み込めることを確認済みです。Script Propertiesの `SPREADSHEET_ID` は本番シートを明示的に指定しています。
+
 ## ファイル
 
 - `Code.gs`: 検査、登録、更新、停止、アーカイブ、復元、同時更新ロック
@@ -29,7 +38,7 @@ id | enabled | site | preset | url | title | memo | created_at | updated_at | ar
 
 ## テスト用スプレッドシート
 
-原本を変更せずに作成した [monitoring-registry-test](https://docs.google.com/spreadsheets/d/1dTRLFKwU7D6khoyIIP-nKU--FkQB-_eWXrmBEnjuuco/edit) を最初の接続先にします。55件を保持し、10列スキーマへ移行済みです。
+原本を変更せずに作成した [monitoring-registry-test](https://docs.google.com/spreadsheets/d/1dTRLFKwU7D6khoyIIP-nKU--FkQB-_eWXrmBEnjuuco/edit) は、今後の変更確認用に残しています。55件を保持し、10列スキーマへ移行済みです。現在の本番Webアプリの接続先はこのテストシートではありません。
 
 ## Apps Scriptへ設定する
 
@@ -43,7 +52,7 @@ id | enabled | site | preset | url | title | memo | created_at | updated_at | ar
 
 `setupForBoundSpreadsheet` は、Webアプリ実行時にアクティブシートへ依存しないよう、対象IDをScript Propertiesへ保存します。旧8列のシートで実行した場合は、データを保ったまま10列へ移行します。すでに10列なら再実行しても列移行は行いません。
 
-## 自分専用でテスト公開する
+## 自分専用で公開する
 
 1. Apps Script右上の「デプロイ」→「新しいデプロイ」を選びます。
 2. 種類を「ウェブアプリ」にします。
@@ -51,7 +60,7 @@ id | enabled | site | preset | url | title | memo | created_at | updated_at | ar
 4. 「アクセスできるユーザー」は自分のみを選びます。
 5. デプロイ後のURLを開きます。
 
-テストが完了するまで、本番の `Monitoring Registry` にはバインドしません。WebアプリURLを公開共有する必要もありません。
+本番デプロイも「自分のみ」の設定を維持します。URLを知っている別ユーザーや未ログイン環境からは、Googleのログイン画面へ移動します。
 
 ## 機能テスト（15項目）
 
@@ -75,8 +84,8 @@ id | enabled | site | preset | url | title | memo | created_at | updated_at | ar
 
 追加したテスト行は、最後にアーカイブして残すか、テスト用シートだけで削除して構いません。本番では物理削除せずアーカイブを使用します。
 
-## 本番へ切り替えるとき
+## 本番運用
 
-テスト用Webアプリの確認後、本番スプレッドシートから同様にApps Scriptを開き、3ファイルを設定して `setupForBoundSpreadsheet` を実行します。その後、自分専用で新しいデプロイを作ります。
+本番接続への切り替えは完了しています。コードを変更した場合はApps Scriptへ反映し、新しいバージョンへデプロイします。接続先だけを変更する場合は、プロジェクト設定のScript Propertiesにある `SPREADSHEET_ID` を変更します。
 
-切り替え直後は、GitHub Actionsの `Validate registry` を手動実行し、55件とYAML生成が成功することを確認します。管理画面は登録データだけを変更し、GitHub SecretsやPrivateのSQLiteにはアクセスしません。
+管理画面で変更した後は、次回のGitHub Actionsより前に `Validate registry` を手動実行すると、件数、重複、プリセット対応、YAML生成を安全に確認できます。管理画面は登録データだけを変更し、GitHub SecretsやPrivateのSQLiteにはアクセスしません。

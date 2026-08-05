@@ -286,9 +286,9 @@
           <p class="field-help">既存URLとの重複は保存前に拒否されます。</p>
         </div>
         <div class="field">
-          <label for="entryPreset">サイト種類（プリセット） *</label>
+          <label for="entryPreset">抽出ルール（プリセット） *</label>
           <select id="entryPreset" class="control" required></select>
-          <p id="sitePreview" class="field-help">URLとプリセットからサイト識別子を自動決定します。</p>
+          <p id="sitePreview" class="field-help">URLからサイト識別子を自動決定します。プリセットによるサイト制限はありません。</p>
         </div>
         <div class="field">
           <label for="entryMemo">メモ</label>
@@ -565,21 +565,12 @@
       }
 
       function updateSitePreview() {
-        const preset = state.presets.find(item => item.name === elements.preset.value);
-        if (!preset) {
-          elements.sitePreview.textContent = 'URLとプリセットからサイト識別子を自動決定します。';
-          return;
-        }
-        if (preset.sites.length === 1) {
-          elements.sitePreview.textContent = 'サイト識別子: ' + preset.sites[0];
-          return;
-        }
         let host = '';
         try { host = new URL(elements.url.value).hostname.replace(/^www\./, ''); } catch (_) { /* 未入力 */ }
-        const matched = preset.sites.find(site => host === site || host.endsWith('.' + site));
-        elements.sitePreview.textContent = matched
-          ? 'サイト識別子: ' + matched
-          : '対応サイト: ' + preset.sites.join(', ');
+        const site = host === 'syosetu.com' || host.endsWith('.syosetu.com') ? 'syosetu' : host;
+        elements.sitePreview.textContent = site
+          ? 'サイト識別子: ' + site + '（プリセットによるサイト制限なし）'
+          : 'URLからサイト識別子を自動決定します。プリセットによるサイト制限はありません。';
       }
 
       async function submitEntry(event) {

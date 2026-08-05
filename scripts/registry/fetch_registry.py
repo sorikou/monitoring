@@ -169,11 +169,6 @@ def parse_registry_csv(text: str, presets: dict[str, dict]) -> list[RegistryEntr
         preset = presets.get(preset_name)
         if preset is None:
             raise ValueError(f"Row {row_number}: unknown preset {preset_name!r}")
-        allowed_sites = preset.get("sites") or []
-        if allowed_sites and site not in allowed_sites:
-            raise ValueError(
-                f"Row {row_number}: site {site!r} is not allowed by preset {preset_name!r}"
-            )
 
         entries.append(
             RegistryEntry(

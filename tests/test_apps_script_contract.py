@@ -88,6 +88,13 @@ class AppsScriptContractTests(unittest.TestCase):
         self.assertIn("actionGroup.className = 'actions'", self.index)
         self.assertNotIn("actionCell.className = 'actions'", self.index)
 
+    def test_presets_are_not_restricted_to_known_sites(self) -> None:
+        self.assertIn("site: resolveSite_(url)", self.code)
+        self.assertIn("function resolveSite_(url)", self.code)
+        self.assertNotIn("preset.sites", self.code + self.index)
+        self.assertNotIn("対応していません", self.code)
+        self.assertIn("プリセットによるサイト制限はありません", self.index)
+
 
 if __name__ == "__main__":
     unittest.main()

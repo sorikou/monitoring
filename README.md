@@ -9,7 +9,7 @@
 - 作品一覧の正本はGoogleスプレッドシートとする
 - urlwatchへ渡すYAMLは `generated/` に自動生成し、人が直接編集しない
 - サイトごとの抽出設定は `config/site-presets.yaml` に置く
-- 通常ユーザーは作品URLとサイト種類だけを登録する
+- 通常ユーザーは作品URLと抽出ルール（プリセット）だけを登録する
 - 監視間隔は1時間とする
 - 初回登録時は基準データだけを保存し、通知しない
 - 監視の停止は作品の物理削除ではなく無効化で扱う
@@ -90,7 +90,7 @@ python scripts/registry/fetch_registry.py
 python scripts/monitoring/generate_urls.py
 ```
 
-取得時は、共通の必須列、`title` または旧 `name`、`enabled`、任意の `archived`、URL形式、固定ID、URL重複、プリセット存在、サイトとプリセットの対応、有効行が1件以上あることを検査します。`archived=TRUE` の行は、`enabled` の値にかかわらず監視対象から除外します。
+取得時は、共通の必須列、`title` または旧 `name`、`enabled`、任意の `archived`、URL形式、固定ID、URL重複、プリセット存在、有効行が1件以上あることを検査します。プリセットは抽出ルールであり、URLのサイトによる選択制限はありません。`archived=TRUE` の行は、`enabled` の値にかかわらず監視対象から除外します。
 
 Google Sheetを準備する前は、同梱CSVを指定して同じ処理を確認できます。
 

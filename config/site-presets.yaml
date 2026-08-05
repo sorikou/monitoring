@@ -2,64 +2,47 @@ schema_version: 1
 presets:
   anime-news:
     description: アニメ公式サイトのニュース本文全体
-    sites:
-      - chainsawman.dog
-      - dmdp-anime.jp
-      - ichigoproduction.com
-      - kamikatsu-anime.jp
-      - munounanana.com
-      - rokka-anime.jp
-      - shadow-garden.jp
-      - sololeveling-anime.net
-      - zom100.com
     filter:
       - html2text
 
   comic-valkyrie-work:
     description: コミックヴァルキリーの最新話範囲
-    sites: [comic-valkyrie.com]
     filter:
       - html2text
       - re.findall: '(?s)最新話(.*?)この作品に対するご感想はこちらから'
 
   gangan-online-work:
     description: ガンガンONLINEのチャプター範囲
-    sites: [ganganonline.com]
     filter:
       - html2text
       - re.findall: '(?s)チャプター(.*?)作品インフォメーション'
 
   gaugau-work:
     description: がうがうモンスターの配信作品範囲
-    sites: [gaugau.futabanet.jp]
     filter:
       - html2text
       - re.findall: '(?s)無料配信中の漫画(.*?)ランキング'
 
   manga-up-work:
     description: マンガUPの次回チャプター予定
-    sites: [manga-up.com]
     filter:
       - html2text
       - re.findall: '(?s)次回の新チャプター追加(.*?)予定です'
 
   niconico-manga-work:
     description: ニコニコ漫画の最新話範囲
-    sites: [manga.nicovideo.jp]
     filter:
       - html2text
       - re.findall: '(?s)最新話を読む(.*?)その他マンガ'
 
   syosetu-work:
     description: 小説家になろうの作品更新範囲
-    sites: [syosetu]
     filter:
       - html2text
       - re.findall: '(?s)作者：(.*?)この作品をブックマークに登録している人はこんな作品も読んでいます'
 
   syosetu-work-ignore-revised:
     description: 小説家になろうの作品更新範囲（改稿表示を除外）
-    sites: [syosetu]
     filter:
       - html2text
       - grepi: '（改）'
@@ -67,7 +50,6 @@ presets:
 
   yanmaga-work:
     description: ヤンマガWebのエピソード範囲
-    sites: [yanmaga.jp]
     filter:
       - html2text
       - re.findall: '(?s)必要ポイント(.*?)「全話無料」対象作品はコチラ!!!'

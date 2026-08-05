@@ -76,6 +76,15 @@ one,true,syosetu,missing,https://example.com/work,work,,
         with self.assertRaisesRegex(ValueError, "unknown preset"):
             parse_registry_csv(text, self.presets)
 
+    def test_preset_is_not_restricted_to_known_sites(self) -> None:
+        text = """id,enabled,site,preset,url,name,memo,updated_at
+one,true,yanineko-anime.com,anime-news,https://yanineko-anime.com/news/,やり直し令嬢は竜帝陛下を攻略中,,
+"""
+        entries = parse_registry_csv(text, self.presets)
+        self.assertEqual(len(entries), 1)
+        self.assertEqual(entries[0].site, "yanineko-anime.com")
+        self.assertEqual(entries[0].preset, "anime-news")
+
     def test_duplicate_enabled_url_is_rejected(self) -> None:
         text = """id,enabled,site,preset,url,name,memo,updated_at
 one,true,syosetu,syosetu-work,https://example.com/work,one,,

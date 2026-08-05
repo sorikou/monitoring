@@ -30,7 +30,7 @@ id | enabled | site | preset | url | title | memo | created_at | updated_at | ar
 - `id` は登録時に `monitor-0056` のように自動採番し、編集では変更しません。
 - `enabled=FALSE` は一時停止です。
 - アーカイブ時は `archived=TRUE` と `enabled=FALSE` を同時に設定し、行を削除しません。
-- `site` はURLとプリセットからサーバー側で決定します。
+- `site` はURLのホスト名からサーバー側で決定します。プリセットによるサイト制限はありません。
 - URLはアーカイブ済みを含む全行で重複を拒否します。
 - URLを変更するときは画面とサーバーの両方で確認を要求します。
 
@@ -72,7 +72,7 @@ id | enabled | site | preset | url | title | memo | created_at | updated_at | ar
 4. 正しいURLとプリセットで1件追加でき、IDが自動採番される。
 5. 同じURLをもう一度登録すると拒否される。
 6. `http://` / `https://` 以外のURLが拒否される。
-7. URLのサイトとプリセットが合わない場合に拒否される。
+7. 未登録のサイトでも任意のプリセットを選んで登録でき、`site` はURLから自動設定される。
 8. タイトルとメモを編集でき、IDは変わらない。
 9. URL変更時に警告が表示され、確認しない限り保存されない。
 10. 「停止」で `enabled=FALSE` になり一覧に残る。
@@ -88,4 +88,4 @@ id | enabled | site | preset | url | title | memo | created_at | updated_at | ar
 
 本番接続への切り替えは完了しています。コードを変更した場合はApps Scriptへ反映し、新しいバージョンへデプロイします。接続先だけを変更する場合は、プロジェクト設定のScript Propertiesにある `SPREADSHEET_ID` を変更します。
 
-管理画面で変更した後は、次回のGitHub Actionsより前に `Validate registry` を手動実行すると、件数、重複、プリセット対応、YAML生成を安全に確認できます。管理画面は登録データだけを変更し、GitHub SecretsやPrivateのSQLiteにはアクセスしません。
+管理画面で変更した後は、次回のGitHub Actionsより前に `Validate registry` を手動実行すると、件数、重複、プリセット存在、YAML生成を安全に確認できます。管理画面は登録データだけを変更し、GitHub SecretsやPrivateのSQLiteにはアクセスしません。

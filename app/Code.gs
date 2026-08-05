@@ -32,49 +32,30 @@ const LEGACY_HEADERS = Object.freeze([
 const REGISTRY_PRESETS = Object.freeze({
   'anime-news': {
     label: 'アニメ公式サイトのニュース',
-    sites: [
-      'chainsawman.dog',
-      'dmdp-anime.jp',
-      'ichigoproduction.com',
-      'kamikatsu-anime.jp',
-      'munounanana.com',
-      'rokka-anime.jp',
-      'shadow-garden.jp',
-      'sololeveling-anime.net',
-      'zom100.com',
-    ],
   },
   'comic-valkyrie-work': {
     label: 'コミックヴァルキリー作品',
-    sites: ['comic-valkyrie.com'],
   },
   'gangan-online-work': {
     label: 'ガンガンONLINE作品',
-    sites: ['ganganonline.com'],
   },
   'gaugau-work': {
     label: 'がうがうモンスター作品',
-    sites: ['gaugau.futabanet.jp'],
   },
   'manga-up-work': {
     label: 'マンガUP!作品',
-    sites: ['manga-up.com'],
   },
   'niconico-manga-work': {
     label: 'ニコニコ漫画作品',
-    sites: ['manga.nicovideo.jp'],
   },
   'syosetu-work': {
     label: '小説家になろう作品',
-    sites: ['syosetu'],
   },
   'syosetu-work-ignore-revised': {
     label: '小説家になろう作品（改稿表示を除外）',
-    sites: ['syosetu'],
   },
   'yanmaga-work': {
     label: 'ヤンマガWeb作品',
-    sites: ['yanmaga.jp'],
   },
 });
 
@@ -125,7 +106,6 @@ function getInitialData() {
       return {
         name: name,
         label: REGISTRY_PRESETS[name].label,
-        sites: REGISTRY_PRESETS[name].sites.slice(),
       };
     }),
     summary: buildSummary_(entries),
@@ -486,24 +466,18 @@ function normalizeEntryPayload_(payload) {
     id: normalizeText_(payload.id),
     enabled: payload.enabled !== false,
     preset: preset,
-    site: resolveSite_(preset, url),
+    site: resolveSite_(url),
     url: url,
     title: normalizeText_(payload.title),
     memo: normalizeText_(payload.memo),
   };
 }
 
-function resolveSite_(presetName, url) {
-  const preset = REGISTRY_PRESETS[presetName];
-  if (!preset) return '';
+function resolveSite_(url) {
   const match = /^https?:\/\/([^/?#:]+)(?::\d+)?(?:[/?#]|$)/i.exec(url);
   const host = match ? match[1].toLowerCase().replace(/^www\./, '') : '';
-  return preset.sites.find(function (site) {
-    if (site === 'syosetu') {
-      return host === 'syosetu.com' || host.endsWith('.syosetu.com');
-    }
-    return host === site || host.endsWith('.' + site);
-  }) || '';
+  if (host === 'syosetu.com' || host.endsWith('.syosetu.com')) return 'syosetu';
+  return host;
 }
 
 function validateNormalizedEntry_(entry) {
@@ -513,9 +487,6 @@ function validateNormalizedEntry_(entry) {
   }
   if (!/^https?:\/\/[^\s]+$/i.test(entry.url)) {
     errors.push('URLは http:// または https:// から入力してください。');
-  }
-  if (entry.preset && REGISTRY_PRESETS[entry.preset] && !entry.site) {
-    errors.push('URLのサイトが選択したプリセットに対応していません。');
   }
   if (entry.title.length > 300) errors.push('タイトルは300文字以内にしてください。');
   if (entry.memo.length > 2000) errors.push('メモは2000文字以内にしてください。');
